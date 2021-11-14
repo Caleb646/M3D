@@ -27,7 +27,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -88,6 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,18 +147,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MathLibrary.cpp" />
-    <ClCompile Include="_logging\_log.cpp" />
-    <ClCompile Include="_vmath\_matrix.cpp" />
-    <ClCompile Include="_vmath\_utils.cpp" />
-    <ClCompile Include="_vmath\_vector.cpp" />
+    <ClInclude Include="M3D.h" />
+    <ClInclude Include="src\Matrix.h" />
+    <ClInclude Include="src\Utils.h" />
+    <ClInclude Include="src\Vector.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="_logging\_log.h" />
-    <ClInclude Include="_vmath\_matrix.h" />
-    <ClInclude Include="_vmath\_utils.h" />
-    <ClInclude Include="_vmath\_vector.h" />
-    <ClInclude Include="_vmath\_vmath.h" />
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+    <None Include=".gitmodules" />
+    <None Include="AddSubMods.bat" />
+    <None Include="UpdateSubMods.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

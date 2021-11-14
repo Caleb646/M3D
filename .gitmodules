@@ -1,0 +1,3 @@
+[submodule "deps/include/Logi"]
+	path = deps/include/Logi
+	url = https://github.com/Caleb646/Logi.git
