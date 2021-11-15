@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <Logi/Logi.h>
+//#include <Logi/Logi.h>
 
 /*
 * 
@@ -39,7 +39,7 @@ namespace m3d
 		Vector(const Vector<T, SIZE>& v0)
 		{
 
-			ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0) == true, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0) == true, "Dimensions do not match.");
 			for (int i = 0; i < SIZE; i++)
 			{
 				v[i] = v0[i];
@@ -81,7 +81,7 @@ namespace m3d
 
 		Vector(const Vector<T, 2>& xy, T z, T w)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
 			v[0] = xy.x();
 			v[1] = xy.y();
 			v[2] = z;
@@ -90,7 +90,7 @@ namespace m3d
 
 		Vector(T x, const Vector<T, 2>& yz, T w)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
 			v[0] = x;
 			v[1] = yz.x();
 			v[2] = yz.y();
@@ -99,7 +99,7 @@ namespace m3d
 
 		Vector(T x, T y, const Vector<T, 2>& zw)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
 			v[0] = x;
 			v[1] = y;
 			v[2] = zw.x();
@@ -108,7 +108,7 @@ namespace m3d
 
 		Vector(const Vector<T, 2>& xy, const Vector<T, 2>& zw)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
 			v[0] = xy.x();
 			v[1] = xy.y();
 			v[2] = zw.x();
@@ -117,7 +117,7 @@ namespace m3d
 
 		Vector(const Vector<T, 3>& xyz, T w)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == 4, "Dimensions do not match.");
 			v[0] = xyz.x();
 			v[1] = xyz.y();
 			v[2] = xyz.z();
@@ -126,7 +126,7 @@ namespace m3d
 
 		Vector(std::initializer_list<T> init_list)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == init_list.size(), "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE == init_list.size(), "Dimensions do not match.");
 			size_type c{ 0 };
 
 			for (auto i : init_list)
@@ -174,12 +174,12 @@ namespace m3d
 
 		inline T& operator[] (int index)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, index < SIZE, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, index < SIZE, "Dimensions do not match.");
 			return v[index];
 		}
 		inline const T& operator [] (int index) const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, index < SIZE, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, index < SIZE, "Dimensions do not match.");
 			return v[index];
 		}
 
@@ -216,7 +216,7 @@ namespace m3d
 
 		inline Vector<T, SIZE> operator* (const Vector<T, SIZE>& v0)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0), "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0), "Dimensions do not match.");
 			Vector<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -247,7 +247,7 @@ namespace m3d
 
 		inline Vector<T, SIZE>& operator+= (const Vector<T, SIZE>& v0)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0), "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0), "Dimensions do not match.");
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				v[i] = v[i] + v0[i];
@@ -257,7 +257,7 @@ namespace m3d
 
 		inline Vector<T, SIZE>& operator-= (const Vector<T, SIZE>& v0)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0), "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0), "Dimensions do not match.");
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				v[i] = v[i] - v0[i];
@@ -267,7 +267,7 @@ namespace m3d
 
 		inline Vector<T, SIZE>& operator*= (const Vector<T, SIZE>& v0)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0), "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, validate(*this, v0), "Dimensions do not match.");
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				v[i] = v[i] * v0[i];
@@ -324,19 +324,19 @@ namespace m3d
 
 		T& y()
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
 			return v[1];
 		}
 
 		T& z()
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 3, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 3, "Dimensions do not match.");
 			return v[2];
 		}
 
 		T& w()
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
 			return v[3];
 		}
 
@@ -347,46 +347,46 @@ namespace m3d
 
 		T y() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
 			return v[1];
 		}
 
 		T z() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 3, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 3, "Dimensions do not match.");
 			return v[2];
 		}
 
 		T w() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
 			return v[3];
 		}
 
 		Vector<T, 2> xy() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
 			Vector<T, 2> out({ v[0], v[1] });
 			return out;
 		}
 
 		Vector<T, 2> yz() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
 			Vector<T, 2> out({ v[1], v[2] });
 			return out;
 		}
 
 		Vector<T, 2> zw() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
 			Vector<T, 2> out({ v[2], v[3] });
 			return out;
 		}
 
 		Vector<T, 2> wx() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 2, "Dimensions do not match.");
 			Vector<T, 2> out({ v[3], v[0] });
 			return out;
 		}
@@ -394,56 +394,56 @@ namespace m3d
 
 		Vector<T, 3> xyz() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 3, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 3, "Dimensions do not match.");
 			Vector<T, 3> out({ v[0], v[1], v[2] });
 			return out;
 		}
 
 		Vector<T, 3> yzw() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
 			Vector<T, 3> out({ v[1], v[2], v[3] });
 			return out;
 		}
 
 		Vector<T, 3> zwx() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
 			Vector<T, 3> out({ v[2], v[3], v[0] });
 			return out;
 		}
 
 		Vector<T, 3> wxy() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
 			Vector<T, 3> out({ v[3], v[0], v[1] });
 			return out;
 		}
 
 		Vector<T, 3> xyw() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
 			Vector<T, 3> out({ v[0], v[1], v[3] });
 			return out;
 		}
 
 		Vector<T, 3> yzx() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 3, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 3, "Dimensions do not match.");
 			Vector<T, 3> out({ v[1], v[2], v[0] });
 			return out;
 		}
 
 		Vector<T, 3> zwy() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
 			Vector<T, 3> out({ v[2], v[3], v[1] });
 			return out;
 		}
 
 		Vector<T, 3> wxz() const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
+			//ASSERT_ERROR(DEFAULT_LOGGABLE, SIZE >= 4, "Dimensions do not match.");
 			Vector<T, 3> out({ v[3], v[0], v[2] });
 			return out;
 		}

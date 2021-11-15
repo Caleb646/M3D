@@ -15,6 +15,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+    <None Include=".gitmodules" />
+    <None Include="AddSubMods.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="UpdateSubMods.bat">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="M3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\Matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -24,29 +43,5 @@
     <ClInclude Include="src\Vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="M3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".gitattributes" />
-    <None Include=".gitignore" />
-    <None Include="AddSubMods.bat">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="UpdateSubMods.bat">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include=".gitmodules" />
-    <None Include="lib\M3D.idb" />
-    <None Include="lib\M3D.pdb" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="lib\M3D.lib" />
   </ItemGroup>
 </Project>
