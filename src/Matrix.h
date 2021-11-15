@@ -123,7 +123,7 @@ namespace m3d
 
 		T& operator ()(size_type row, size_type col)
 		{
-			//ASSERT_FATAL(DEFAULT_LOGGABLE, row < SIZE&& col < SIZE, "row or col is out of bounds.");
+			ASSERT_ERROR(DEFAULT_LOGGABLE, row < SIZE&& col < SIZE, "row or col is out of bounds.");
 			size_type index{ (row * SIZE) + col };
 
 			if (COLORDERING)
@@ -134,7 +134,7 @@ namespace m3d
 
 		const T& operator ()(size_type row, size_type col) const
 		{
-			//ASSERT_FATAL(DEFAULT_LOGGABLE, row < SIZE&& col < SIZE, "row or col is out of bounds.");
+			ASSERT_ERROR(DEFAULT_LOGGABLE, row < SIZE&& col < SIZE, "row or col is out of bounds.");
 			size_type index{ (row * SIZE) + col };
 
 			if (COLORDERING)
