@@ -38,10 +38,15 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include=".gitmodules" />
+    <None Include="lib\M3D.idb" />
+    <None Include="lib\M3D.pdb" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\M3D.lib" />
   </ItemGroup>
 </Project>
