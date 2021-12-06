@@ -1,2 +1,5 @@
 
-void fnM3D() {}
+int main()
+{
+	return 0;
+}

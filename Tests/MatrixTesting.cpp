@@ -1,10 +1,6 @@
 #include <gtest/gtest.h>
+
 #include "../M3D.h"
-
-
-
-
-//float degreesToRadians(float radians);
 
 namespace MatrixTesting_Class
 {

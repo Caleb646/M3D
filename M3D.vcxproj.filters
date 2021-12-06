@@ -43,5 +43,8 @@
     <ClInclude Include="src\Vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

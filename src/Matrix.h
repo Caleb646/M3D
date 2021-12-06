@@ -1,6 +1,8 @@
 #pragma once
 #include "Vector.h"
 
+#include <vector>
+
 /*
 *
 *
@@ -15,13 +17,19 @@
 namespace m3d
 {
 
-	template <typename T, std::size_t SIZE, bool COLORDERING>
+	template <typename T, std::size_t SIZE>
 	class Matrix
 	{
 	public:
 		using size_type = std::size_t;
 		using value_type = T;
-		value_type mat[SIZE * SIZE] = { 0 };
+		using vector_type = Vector<value_type, SIZE>;
+		//value_type mat[SIZE * SIZE] = { 0 };
+		value_type mat[SIZE][SIZE] = { 0 };
+		//vector_type mat[SIZE]{};
+
+	private:
+		bool _isCreated{ false };
 
 	public:
 		Matrix()
@@ -32,12 +40,12 @@ namespace m3d
 				{
 					if (i == j)
 					{
-						operator()(i, j) = static_cast<T>(1);
+						operator()(i, j) = static_cast<value_type>(1);
 					}
 				
 					else
 					{
-						operator()(i, j) = static_cast<T>(0);
+						operator()(i, j) = static_cast<value_type>(0);
 					}	
 				}
 			}
@@ -50,7 +58,19 @@ namespace m3d
 			{
 				for (size_type j = 0; j < SIZE; j++)
 				{
-					operator()(i, j) = static_cast<T>(f);
+					operator()(i, j) = static_cast<value_type>(f);
+				}
+			}
+		}
+
+		Matrix(std::vector<std::vector<T>> vec)
+		{
+			//expects row ordered 2d array
+			for (size_type i = 0; i < SIZE; i++)
+			{
+				for (size_type j = 0; j < SIZE; j++)
+				{
+					operator()(i, j) = vec[i][j];
 				}
 			}
 		}
@@ -67,7 +87,7 @@ namespace m3d
 			}
 		}
 
-		Matrix(const Matrix<T, SIZE, COLORDERING>& m)
+		Matrix(const Matrix<T, SIZE>& m)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -109,7 +129,7 @@ namespace m3d
 				{
 					size_t index = (j * SIZE) + i;
 					//stream << std::fixed << std::setprecision(2) << this->operator()(i, j, true) << " || " << &this->operator()(i, j, true);
-					stream << std::fixed << std::setprecision(2) << this->operator()(i, j) << " || " << index << " || ";
+					//stream << std::fixed << std::setprecision(2) << operator()(i, j) << " || " << index << " || ";
 					//if (COLORDERING) //swap contiguous parts to be place in the row of the string instead of the column
 					//	stream << std::fixed << std::setprecision(2) << this->operator()(j, i);
 					//else
@@ -121,26 +141,52 @@ namespace m3d
 			return stream.str();
 		}
 
-		T& operator ()(size_type row, size_type col)
+		/**
+		 * @brief All of the calculations in the Matrix class are done 
+		 * in a Row Major way unless the Column Major Macro is defined. The only aspect
+		 * that will change is index operator will swap the row and col indices essentially
+		 * transposing a Row Major matrix.
+		*/
+		value_type& operator() (size_type row, size_type col)
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, row < SIZE&& col < SIZE, "row or col is out of bounds.");
-			size_type index{ (row * SIZE) + col };
+			MD_ASSERT(row < SIZE && col < SIZE);
+			size_type index{};
 
-			if (COLORDERING)
-				index = (col * SIZE) + row;
+			if (_isCreated)
+			{
+				return mat[row][col];
+			}
 
-			return mat[index];
+#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLE
+			//index = (col * SIZE) + row;
+			return mat[col][row];
+#else 
+			//index = (row * SIZE) + col;
+			return mat[row][col];
+#endif
+
+			//return mat[index];
 		}
 
-		const T& operator ()(size_type row, size_type col) const
+		const value_type& operator ()(size_type row, size_type col) const
 		{
-			ASSERT_ERROR(DEFAULT_LOGGABLE, row < SIZE&& col < SIZE, "row or col is out of bounds.");
-			size_type index{ (row * SIZE) + col };
+			MD_ASSERT(row < SIZE && col < SIZE);
+			size_type index{};
 
-			if (COLORDERING)
-				index = (col * SIZE) + row;
+			if (_isCreated)
+			{
+				return mat[row][col];
+			}
 
-			return mat[index];
+#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLE
+			//index = (col * SIZE) + row;
+			return mat[col][row];
+#else 
+			//index = (row * SIZE) + col;
+			return mat[row][col];
+#endif
+
+				//return mat[index];
 		}
 
 		/*
@@ -149,7 +195,7 @@ namespace m3d
 		*
 		*/
 
-		void operator= (const Matrix<T, SIZE, COLORDERING>& m0)
+		void operator= (const Matrix<T, SIZE>& m0)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -160,9 +206,9 @@ namespace m3d
 			}
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator+ (const Matrix<T, SIZE, COLORDERING>& m0)
+		Matrix<T, SIZE> operator+ (const Matrix<T, SIZE>& m0)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				for (size_type j = 0; j < SIZE; j++)
@@ -173,9 +219,9 @@ namespace m3d
 			return out;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator- (const Matrix<T, SIZE, COLORDERING>& m0)
+		Matrix<T, SIZE> operator- (const Matrix<T, SIZE>& m0)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				for (size_type j = 0; j < SIZE; j++)
@@ -186,9 +232,9 @@ namespace m3d
 			return out;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator* (const Matrix<T, SIZE, COLORDERING>& m0)
+		Matrix<T, SIZE> operator* (const Matrix<T, SIZE>& m0)
 		{
-			Matrix<T, SIZE, COLORDERING> out(0.0f);
+			Matrix<T, SIZE> out(0.0f);
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				for (size_type j = 0; j < SIZE; j++)
@@ -202,9 +248,9 @@ namespace m3d
 			return out;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator* (float scaler)
+		Matrix<T, SIZE> operator* (float scaler)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -216,9 +262,9 @@ namespace m3d
 			return out;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator/ (float scaler)
+		Matrix<T, SIZE> operator/ (float scaler)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -230,7 +276,7 @@ namespace m3d
 			return out;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator+= (const Matrix<T, SIZE, COLORDERING>& m0)
+		Matrix<T, SIZE> operator+= (const Matrix<T, SIZE>& m0)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -242,7 +288,7 @@ namespace m3d
 			return *this;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator-= (const Matrix<T, SIZE, COLORDERING>& m0)
+		Matrix<T, SIZE> operator-= (const Matrix<T, SIZE>& m0)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -254,13 +300,13 @@ namespace m3d
 			return *this;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator*= (const Matrix<T, SIZE, COLORDERING>& m0)
+		Matrix<T, SIZE> operator*= (const Matrix<T, SIZE>& m0)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				for (size_type j = 0; j < SIZE; j++)
 				{
-					T row{ static_cast<T>(0) };
+					value_type row{ static_cast<value_type>(0) };
 					for (size_type z = 0; z < SIZE; z++)
 					{
 						row = row + operator()(i, j) * m0(j, z);
@@ -271,7 +317,7 @@ namespace m3d
 			return *this;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator*= (float scaler)
+		Matrix<T, SIZE> operator*= (float scaler)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -283,7 +329,7 @@ namespace m3d
 			return *this;
 		}
 
-		Matrix<T, SIZE, COLORDERING> operator/= (float scaler)
+		Matrix<T, SIZE> operator/= (float scaler)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -301,9 +347,9 @@ namespace m3d
 		*
 		*/
 
-		Matrix<T, SIZE, COLORDERING> operator-()
+		Matrix<T, SIZE> operator-()
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				for (size_type j = 0; j < SIZE; i++)
@@ -318,13 +364,13 @@ namespace m3d
 		//when converting to float* return the mat array
 		//example: float *ptr; Mat4f mat; ptr = (float*) mat; would
 		//call one of these functions.
-		operator const T* () const
+		operator const value_type* () const
 		{
-			return mat;
+			return *mat;
 		}
-		operator T* ()
+		operator value_type* ()
 		{
-			return mat;
+			return *mat;
 		}
 
 		/*
@@ -333,9 +379,9 @@ namespace m3d
 		*
 		*/
 
-		static Matrix<T, SIZE, !COLORDERING> transpose(const Matrix<T, SIZE, COLORDERING>& m0)
+		static Matrix<T, SIZE> transpose(const Matrix<T, SIZE>& m0)
 		{
-			Matrix<T, SIZE, !COLORDERING> out;
+			Matrix<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				for (size_type j = 0; j < SIZE; j++)
@@ -352,7 +398,7 @@ namespace m3d
 			size_type c{ 0 };
 			for (auto i : init_list)
 			{
-				operator()(c++, SIZE - 1) = static_cast<T>(i);
+				operator()(c++, SIZE - 1) = static_cast<value_type>(i);
 			}
 		}
 
@@ -366,14 +412,14 @@ namespace m3d
 
 		void getPerspectived(float fovRads, float aspect_ratio, float near_dist, float far_dist)
 		{
-			float half{ std::tanf(fovRads / static_cast<T>(2)) };
+			float half{ std::tanf(fovRads / static_cast<value_type>(2)) };
 
-			operator()(0, 0) = static_cast<T>(1) / (aspect_ratio * half);
-			operator()(1, 1) = static_cast<T>(1) / half;
+			operator()(0, 0) = static_cast<value_type>(1) / (aspect_ratio * half);
+			operator()(1, 1) = static_cast<value_type>(1) / half;
 			operator()(2, 2) = far_dist / (near_dist - far_dist);
-			operator()(3, 2) = -static_cast<T>(1);
-			operator()(2, 3) = -((static_cast<T>(2) * far_dist * near_dist) / (far_dist - near_dist));
-			operator()(3, 3) = static_cast<T>(0);
+			operator()(3, 2) = -static_cast<value_type>(1);
+			operator()(2, 3) = -((static_cast<value_type>(2) * far_dist * near_dist) / (far_dist - near_dist));
+			operator()(3, 3) = static_cast<value_type>(0);
 		}
 
 		void getRotatedX(float radians)
@@ -409,11 +455,11 @@ namespace m3d
 		{
 
 
-			Vector<T, SIZE> newForward{ (targetV - cameraPos).normalize() };
-			float projection{ Vector<T, SIZE>::dot(upVec, newForward) };
-			Vector<T, SIZE> a{ newForward * projection };
-			Vector<T, SIZE> newUp{ (upVec - a).normalize() };
-			Vector<T, SIZE> newRight{ Vector<T, SIZE>::cross(upVec, newForward) };
+			Vector<value_type, SIZE> newForward{ (targetV - cameraPos).normalize() };
+			float projection{ Vector<value_type, SIZE>::dot(upVec, newForward) };
+			Vector<value_type, SIZE> a{ newForward * projection };
+			Vector<value_type, SIZE> newUp{ (upVec - a).normalize() };
+			Vector<value_type, SIZE> newRight{ Vector<value_type, SIZE>::cross(upVec, newForward) };
 
 			operator()(0, 0) = newRight.x();
 			operator()(0, 1) = newRight.y();
@@ -436,24 +482,24 @@ namespace m3d
 
 		void getInversed()
 		{
-			Matrix<T, SIZE, COLORDERING> m(*this);
+			Matrix<T, SIZE> m(*this);
 
 			operator()(0, 0) = m(0, 0);
 			operator()(0, 1) = m(1, 0);
 			operator()(0, 2) = m(2, 0);
-			operator()(0, 3) = static_cast<T>(0);
+			operator()(0, 3) = static_cast<value_type>(0);
 			operator()(1, 0) = m(0, 1);
 			operator()(1, 1) = m(1, 1);
 			operator()(1, 2) = m(2, 1);
-			operator()(1, 3) = static_cast<T>(0);
+			operator()(1, 3) = static_cast<value_type>(0);
 			operator()(2, 0) = m(0, 2);
 			operator()(2, 1) = m(1, 2);
 			operator()(2, 2) = m(2, 2);
-			operator()(2, 3) = static_cast<T>(0);
+			operator()(2, 3) = static_cast<value_type>(0);
 			operator()(3, 0) = -(m(3, 0) * operator()(0, 0) + m(3, 1) * operator()(1, 0) + m(3, 2) * operator()(2, 0));
 			operator()(3, 1) = -(m(3, 0) * operator()(0, 1) + m(3, 1) * operator()(1, 1) + m(3, 2) * operator()(2, 1));
 			operator()(3, 2) = -(m(3, 0) * operator()(0, 2) + m(3, 1) * operator()(1, 2) + m(3, 2) * operator()(2, 2));
-			operator()(3, 3) = static_cast<T>(1);
+			operator()(3, 3) = static_cast<value_type>(1);
 		}
 
 		/*
@@ -462,7 +508,7 @@ namespace m3d
 		*
 		*/
 
-		static Vector<T, SIZE> multVector(Matrix<T, SIZE, COLORDERING> m0, Vector<T, SIZE> v0)
+		static Vector<T, SIZE> multVector(Matrix<T, SIZE> m0, Vector<T, SIZE> v0)
 		{
 			Vector<T, SIZE> out;
 			for (std::size_t i = 0; i < SIZE; i++)
@@ -475,15 +521,17 @@ namespace m3d
 			return out;
 		}
 
-		static Matrix<T, SIZE, COLORDERING> getTranslation(std::initializer_list<T> init_list)
+		static Matrix<T, SIZE> getTranslation(std::initializer_list<T> init_list)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			std::size_t c{ 0 };
 
+			out.creating();
 			for (auto i : init_list)
 			{
 				out(c++, SIZE - 1) = static_cast<T>(i);
 			}
+			out.created();
 			return out;
 		}
 
@@ -491,19 +539,21 @@ namespace m3d
 		* The translation components occupy the 13th, 14th, and 15th elements of the 16-element
 		* matrix, where indices are numbered from 1 to 16.
 		*/
-		static Matrix<T, SIZE, COLORDERING> getTranslation(const Vector<T, SIZE>& v0)
+		static Matrix<T, SIZE> getTranslation(const Vector<T, SIZE>& v0)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
+			out.creating();
 			for (std::size_t i = 0; i < SIZE; i++)
 			{
 				out(i, SIZE - 1) = v0[i];
 			}
+			out.created();
 			return out;
 		}
 
-		static Matrix<T, SIZE, COLORDERING> getPerspective(float fovRads, float aspect_ratio, float near_dist, float far_dist)
+		static Matrix<T, SIZE> getPerspective(float fovRads, float aspect_ratio, float near_dist, float far_dist)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			float half{ std::tanf(fovRads / static_cast<T>(2)) };
 			out(0, 0) = static_cast<T>(1) / (aspect_ratio * half);
 			out(1, 1) = static_cast<T>(1) / half;
@@ -514,9 +564,9 @@ namespace m3d
 			return out;
 		}
 
-		static Matrix<T, SIZE, COLORDERING> getRotateX(float radians)
+		static Matrix<T, SIZE> getRotateX(float radians)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			float c{ std::cosf(radians) };
 			float s{ std::sinf(radians) };
 			out(1, 1) = c;
@@ -525,9 +575,9 @@ namespace m3d
 			out(2, 2) = c;
 			return out;
 		}
-		static Matrix<T, SIZE, COLORDERING> getRotateY(float radians)
+		static Matrix<T, SIZE> getRotateY(float radians)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			float c{ std::cosf(radians) };
 			float s{ std::sinf(radians) };
 			out(0, 0) = c;
@@ -536,9 +586,9 @@ namespace m3d
 			out(2, 2) = c;
 			return out;
 		}
-		static Matrix<T, SIZE, COLORDERING> getRotateZ(float radians)
+		static Matrix<T, SIZE> getRotateZ(float radians)
 		{
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			float c{ std::cosf(radians) };
 			float s{ std::sinf(radians) };
 			out(0, 0) = c;
@@ -548,14 +598,14 @@ namespace m3d
 			return out;
 		}
 
-		static Matrix<T, SIZE, COLORDERING> getPointAt(const Vector<T, SIZE>& cameraPos, const Vector<T, SIZE>& targetV, const  Vector<T, SIZE>& upVec)
+		static Matrix<T, SIZE> getPointAt(const Vector<T, SIZE>& cameraPos, const Vector<T, SIZE>& targetV, const  Vector<T, SIZE>& upVec)
 		{
 			Vector<T, SIZE> newForward{ (targetV - cameraPos).normalize() };
 			float projection{ Vector<T, SIZE>::dot(upVec, newForward) };
 			Vector<T, SIZE> a{ newForward * projection };
 			Vector<T, SIZE> newUp{ (upVec - a).normalize() };
 			Vector<T, SIZE> newRight{ Vector<T, SIZE>::cross(upVec, newForward) };
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 
 			out(0, 0) = newRight.x();
 			out(0, 1) = newRight.y();
@@ -575,9 +625,9 @@ namespace m3d
 			out(3, 3) = 1.0;
 			return out;
 		}
-		static Matrix<T, SIZE, COLORDERING> getInverse(const Matrix<T, SIZE, COLORDERING>& m)
+		static Matrix<T, SIZE> getInverse(const Matrix<T, SIZE>& m)
 		{
-			Matrix<T, SIZE, COLORDERING> out(m);
+			Matrix<T, SIZE> out(m);
 			out(0, 0) = m(0, 0);
 			out(0, 1) = m(1, 0);
 			out(0, 2) = m(2, 0);
@@ -613,7 +663,7 @@ namespace m3d
 			out(3, 3) = static_cast<T>(1);
 			return out;
 		}
-		static Matrix<T, SIZE, COLORDERING> getLookAt(const Vector<T, 3>& eye, const Vector<T, 3>& center, const  Vector<T, 3>& up)
+		static Matrix<T, SIZE> getLookAt(const Vector<T, 3>& eye, const Vector<T, 3>& center, const  Vector<T, 3>& up)
 		{
 
 			Vector<T, 3> f(center - eye);
@@ -624,7 +674,7 @@ namespace m3d
 			Vector<T, 3> u;
 			u = Vector<T, 3>::cross(s, f);
 
-			Matrix<T, SIZE, COLORDERING> out;
+			Matrix<T, SIZE> out;
 			out(0, 0) = s.x();
 			out(0, 1) = s.y();
 			out(0, 2) = s.z();
@@ -642,6 +692,12 @@ namespace m3d
 			return out;
 		}
 
+		private:
+			
+			/*Vector<T, SIZE> operator[] (size_type index)
+			{
+				return mat[index];
+			}*/
 
 	};
 
@@ -657,8 +713,8 @@ namespace m3d
 	*
 	*
 	*/
-	template <class T, int SIZE, bool COLORDERING>
-	Vector<T, SIZE> operator* (const Matrix<T, SIZE, COLORDERING>& m0, const Vector<T, SIZE>& v0)
+	template <class T, int SIZE>
+	Vector<T, SIZE> operator* (const Matrix<T, SIZE>& m0, const Vector<T, SIZE>& v0)
 	{
 		Vector<T, SIZE> out(0.0f);
 		for (std::size_t i = 0; i < SIZE; i++)
@@ -671,8 +727,8 @@ namespace m3d
 		return out;
 	}
 
-	template <class T, int SIZE, bool COLORDERING>
-	Vector<T, SIZE>  operator*= (const Matrix<T, SIZE, COLORDERING>& m0, const Vector<T, SIZE>& v0)
+	template <class T, int SIZE>
+	Vector<T, SIZE>  operator*= (const Matrix<T, SIZE>& m0, const Vector<T, SIZE>& v0)
 	{
 		Vector<T, SIZE> out(0.0f);
 		for (std::size_t i = 0; i < SIZE; i++)
@@ -685,8 +741,8 @@ namespace m3d
 		return out;
 	}
 
-	template <class T, int SIZE, bool COLORDERING>
-	inline bool operator== (const Matrix<T, SIZE, COLORDERING>& lhs, const Matrix<T, SIZE, COLORDERING>& rhs)
+	template <class T, int SIZE>
+	inline bool operator== (const Matrix<T, SIZE>& lhs, const Matrix<T, SIZE>& rhs)
 	{
 		for (std::size_t i = 0; i < SIZE; i++)
 		{
@@ -700,8 +756,8 @@ namespace m3d
 		return true;
 	}
 
-	template <class T, int SIZE, bool COLORDERING>
-	inline bool operator!= (const Matrix<T, SIZE, COLORDERING>& lhs, const Matrix<T, SIZE, COLORDERING>& rhs)
+	template <class T, int SIZE>
+	inline bool operator!= (const Matrix<T, SIZE>& lhs, const Matrix<T, SIZE>& rhs)
 	{
 		return !(lhs == rhs);
 	}
@@ -714,11 +770,11 @@ namespace m3d
 	*
 	*
 	*/
-	typedef Matrix<float, 2, true> Mat2f;
-	typedef Matrix<float, 3, true> Mat3f;
-	typedef Matrix<float, 4, true> Mat4f;
+	typedef Matrix<float, 2> Mat2f;
+	typedef Matrix<float, 3> Mat3f;
+	typedef Matrix<float, 4> Mat4f;
 
-	typedef Matrix<float, 4, false> TestMat4Row;
-	typedef Matrix<float, 4, true> TestMat4Col;
+	typedef Matrix<float, 4> TestMat4Row;
+	typedef Matrix<float, 4> TestMat4Col;
 
 }
