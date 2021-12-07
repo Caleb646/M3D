@@ -24,30 +24,20 @@ namespace m3d
 		using size_type = std::size_t;
 		using value_type = T;
 		using vector_type = Vector<value_type, SIZE>;
+		using mat_t = Matrix;
+		
 		//value_type mat[SIZE * SIZE] = { 0 };
-		value_type mat[SIZE][SIZE] = { 0 };
-		//vector_type mat[SIZE]{};
-
-	private:
-		bool _isCreated{ false };
+		//value_type mat[SIZE][SIZE] = { 0 };
+		vector_type mat[SIZE]{};
 
 	public:
 		Matrix()
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					if (i == j)
-					{
-						operator()(i, j) = static_cast<value_type>(1);
-					}
-				
-					else
-					{
-						operator()(i, j) = static_cast<value_type>(0);
-					}	
-				}
+				vector_type v( static_cast<value_type>(0) );
+				v[i] = static_cast<value_type>(1);
+				operator[](i) = v;
 			}
 		}
 
@@ -56,10 +46,8 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = static_cast<value_type>(f);
-				}
+				vector_type v(f);
+				operator[](i) = v;
 			}
 		}
 
@@ -68,10 +56,8 @@ namespace m3d
 			//expects row ordered 2d array
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = vec[i][j];
-				}
+				vector_type v(vec[i]);
+				operator[](i) = v;
 			}
 		}
 
@@ -80,10 +66,8 @@ namespace m3d
 			//expects row ordered 2d array
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = arr[i][j];
-				}
+				vector_type v(arr[i]);
+				operator[](i) = v;
 			}
 		}
 
@@ -91,10 +75,7 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = m(i, j);
-				}
+				operator[](i) = m[i];
 			}
 		}
 
@@ -109,13 +90,7 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					std::cout << " || " << operator()(i, j) << " || " << " || "; //<< &this->operator()(i, j) << " || ";
-					//std::cout << " || " << mat[(i * SIZE) + j] << " || " << " || " << &mat[(i * SIZE) + j] << " || ";
-					//std::cout << " || " << mat[(i * SIZE) + j] << " || ";
-				}
-				std::cout << std::endl;
+				std::cout << "||" << operator[](i).print() << "||" << std::endl;
 			}
 			std::cout << std::endl;
 		}
@@ -125,17 +100,9 @@ namespace m3d
 			std::stringstream stream;
 			for (int i = 0; i < SIZE; i++)
 			{
-				for (int j = 0; j < SIZE; j++)
-				{
-					size_t index = (j * SIZE) + i;
-					//stream << std::fixed << std::setprecision(2) << this->operator()(i, j, true) << " || " << &this->operator()(i, j, true);
-					//stream << std::fixed << std::setprecision(2) << operator()(i, j) << " || " << index << " || ";
-					//if (COLORDERING) //swap contiguous parts to be place in the row of the string instead of the column
-					//	stream << std::fixed << std::setprecision(2) << this->operator()(j, i);
-					//else
-					//	stream << std::fixed << std::setprecision(2) << this->operator()(i, j);// << " || " << &this->operator()(i, j);
-					stream << " ";
-				}
+				stream << "||";
+				stream << operator[](i).toString();
+				stream << "||";
 				stream << "\n";
 			}
 			return stream.str();
@@ -150,43 +117,31 @@ namespace m3d
 		value_type& operator() (size_type row, size_type col)
 		{
 			MD_ASSERT(row < SIZE && col < SIZE);
-			size_type index{};
-
-			if (_isCreated)
-			{
-				return mat[row][col];
-			}
-
-#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLE
-			//index = (col * SIZE) + row;
-			return mat[col][row];
-#else 
-			//index = (row * SIZE) + col;
-			return mat[row][col];
+#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLED
+			return operator[](col)[row];
+#else
+			return operator[](row)[col];
 #endif
-
-			//return mat[index];
 		}
 
 		const value_type& operator ()(size_type row, size_type col) const
 		{
 			MD_ASSERT(row < SIZE && col < SIZE);
-			size_type index{};
-
-			if (_isCreated)
-			{
-				return mat[row][col];
-			}
-
-#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLE
-			//index = (col * SIZE) + row;
-			return mat[col][row];
-#else 
-			//index = (row * SIZE) + col;
-			return mat[row][col];
+#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLED
+			return operator[](col)[row];
+#else
+			return operator[](row)[col];
 #endif
+		}
 
-				//return mat[index];
+		vector_type& operator[] (size_type index)
+		{
+			return mat[index];
+		}
+
+		const vector_type& operator[] (size_type index) const
+		{
+			return mat[index];
 		}
 
 		/*
@@ -195,15 +150,13 @@ namespace m3d
 		*
 		*/
 
-		void operator= (const Matrix<T, SIZE>& m0)
+		Matrix<T, SIZE>& operator= (const Matrix<T, SIZE>& m0)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = m0(i, j);
-				}
+				operator[](i) = m0[i];
 			}
+			return *this;
 		}
 
 		Matrix<T, SIZE> operator+ (const Matrix<T, SIZE>& m0)
@@ -211,10 +164,7 @@ namespace m3d
 			Matrix<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					out(i, j) = operator()(i, j) + m0(i, j);
-				}
+				out[i] = operator[](i) + m0[i];
 			}
 			return out;
 		}
@@ -224,10 +174,7 @@ namespace m3d
 			Matrix<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					out(i, j) = operator()(i, j) - m0(i, j);
-				}
+				out[i] = operator[](i) - m0[i];
 			}
 			return out;
 		}
@@ -241,7 +188,8 @@ namespace m3d
 				{
 					for (size_type z = 0; z < SIZE; z++)
 					{
-						out(i, j) = out(i, j) + operator()(i, j) * m0(j, z);
+						out[i][j] = out[i][j] + operator[](i)[j] * m0[j][z];
+						//out(i, j) = out(i, j) + operator()(i, j) * m0(j, z);
 					}
 				}
 			}
@@ -254,10 +202,11 @@ namespace m3d
 
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					out(i, j) = operator()(i, j) * scaler;
-				}
+				//for (size_type j = 0; j < SIZE; j++)
+				//{
+				out[i] = operator[](i) * scaler;
+					//out(i, j) = operator()(i, j) * scaler;
+				//}
 			}
 			return out;
 		}
@@ -268,10 +217,11 @@ namespace m3d
 
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					out(i, j) = operator()(i, j) / scaler;
-				}
+				//for (size_type j = 0; j < SIZE; j++)
+				//{
+				out[i] = operator[](i) / scaler;
+					//out(i, j) = operator()(i, j) / scaler;
+				//}
 			}
 			return out;
 		}
@@ -280,10 +230,11 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = operator()(i, j) + m0(i, j);
-				}
+				operator[](i) = operator[](i) + m0[i];
+				//for (size_type j = 0; j < SIZE; j++)
+				//{
+				//	operator()(i, j) = operator()(i, j) + m0(i, j);
+				//}
 			}
 			return *this;
 		}
@@ -292,10 +243,11 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = operator()(i, j) - m0(i, j);
-				}
+				operator[](i) = operator[](i) - m0[i];
+				//for (size_type j = 0; j < SIZE; j++)
+				//{
+				//	operator()(i, j) = operator()(i, j) - m0(i, j);
+				//}
 			}
 			return *this;
 		}
@@ -309,9 +261,10 @@ namespace m3d
 					value_type row{ static_cast<value_type>(0) };
 					for (size_type z = 0; z < SIZE; z++)
 					{
-						row = row + operator()(i, j) * m0(j, z);
+						row = row + operator[](i)[j] * m0[j][z];
+						//row = row + operator()(i, j) * m0(j, z);
 					}
-					operator()(i, j) = row;
+					operator[](i)[j] = row;
 				}
 			}
 			return *this;
@@ -321,10 +274,11 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = operator()(i, j) * scaler;
-				}
+				operator[](i) = operator[](i) * scaler;
+				//for (size_type j = 0; j < SIZE; j++)
+				//{
+				//	operator()(i, j) = operator()(i, j) * scaler;
+				//}
 			}
 			return *this;
 		}
@@ -333,10 +287,11 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					operator()(i, j) = operator()(i, j) / scaler;
-				}
+				operator[](i) = operator[](i) / scaler;
+				//for (size_type j = 0; j < SIZE; j++)
+				//{
+				//	operator()(i, j) = operator()(i, j) / scaler;
+				//}
 			}
 			return *this;
 		}
@@ -392,37 +347,25 @@ namespace m3d
 			return out;
 		}
 
-
-		void getTranslated(std::initializer_list<T> init_list)
+		Matrix<T, SIZE>& getTranslated(const Vector<T, SIZE>& v0)
 		{
-			size_type c{ 0 };
-			for (auto i : init_list)
+			for (size_type i = 0; i < SIZE - 1; i++)
 			{
-				operator()(c++, SIZE - 1) = static_cast<value_type>(i);
+				operator[](SIZE - 1) += operator[](i) * v0[i];
 			}
+			return *this;
 		}
 
-		void getTranslated(const Vector<T, SIZE>& v0)
+		Matrix<T, 4>& getTranslated(const Vector<T, 3>& v0)
 		{
-			for (size_type i = 0; i < SIZE; i++)
+			for (size_type i = 0; i < SIZE - 1; i++)
 			{
-				operator()(i, SIZE - 1) = v0[i];
+				operator[](SIZE - 1) += operator[](i) * v0[i];
 			}
+			return *this;
 		}
 
-		void getPerspectived(float fovRads, float aspect_ratio, float near_dist, float far_dist)
-		{
-			float half{ std::tanf(fovRads / static_cast<value_type>(2)) };
-
-			operator()(0, 0) = static_cast<value_type>(1) / (aspect_ratio * half);
-			operator()(1, 1) = static_cast<value_type>(1) / half;
-			operator()(2, 2) = far_dist / (near_dist - far_dist);
-			operator()(3, 2) = -static_cast<value_type>(1);
-			operator()(2, 3) = -((static_cast<value_type>(2) * far_dist * near_dist) / (far_dist - near_dist));
-			operator()(3, 3) = static_cast<value_type>(0);
-		}
-
-		void getRotatedX(float radians)
+		Matrix<T, SIZE>& getRotatedX(float radians)
 		{
 			float c{ std::cosf(radians) };
 			float s{ std::sinf(radians) };
@@ -431,8 +374,10 @@ namespace m3d
 			operator()(1, 2) = s;
 			operator()(2, 1) = -s;
 			operator()(2, 2) = c;
+
+			return *this;
 		}
-		void getRotatedY(float radians)
+		Matrix<T, SIZE>& getRotatedY(float radians)
 		{
 			float c{ std::cosf(radians) };
 			float s{ std::sinf(radians) };
@@ -440,15 +385,16 @@ namespace m3d
 			operator()(0, 2) = s;
 			operator()(2, 0) = -s;
 			operator()(2, 2) = c;
+			return *this;
 		}
 		void getRotatedZ(float radians)
 		{
 			float c{ std::cosf(radians) };
 			float s{ std::sinf(radians) };
-			this->operator()(0, 0) = c;
-			this->operator()(0, 1) = s;
-			this->operator()(1, 0) = -s;
-			this->operator()(1, 1) = c;
+			operator()(0, 0) = c;
+			operator()(0, 1) = s;
+			operator()(1, 0) = -s;
+			operator()(1, 1) = c;
 		}
 
 		void getPointedAt(const Vector<T, SIZE>& cameraPos, const Vector<T, SIZE>& targetV, const Vector<T, SIZE>& upVec)
@@ -521,17 +467,13 @@ namespace m3d
 			return out;
 		}
 
-		static Matrix<T, SIZE> getTranslation(std::initializer_list<T> init_list)
+		static Matrix<T, SIZE> getTranslation(const mat_t& m0, const Vector<T, SIZE>& v0)
 		{
 			Matrix<T, SIZE> out;
-			std::size_t c{ 0 };
-
-			out.creating();
-			for (auto i : init_list)
+			for (size_type i = 0; i < SIZE; i++)
 			{
-				out(c++, SIZE - 1) = static_cast<T>(i);
+				out[SIZE - 1] += m0[i] * v0[i];
 			}
-			out.created();
 			return out;
 		}
 
@@ -539,28 +481,38 @@ namespace m3d
 		* The translation components occupy the 13th, 14th, and 15th elements of the 16-element
 		* matrix, where indices are numbered from 1 to 16.
 		*/
-		static Matrix<T, SIZE> getTranslation(const Vector<T, SIZE>& v0)
+		static Matrix<T, 4> getTranslation(const Matrix<T, 4>& m0, const Vector<T, 3>& v0)
 		{
+
+			//mat<4, 4, T, Q> Result(m);
+			//Result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+			//return Result;
+
 			Matrix<T, SIZE> out;
-			out.creating();
-			for (std::size_t i = 0; i < SIZE; i++)
-			{
-				out(i, SIZE - 1) = v0[i];
-			}
-			out.created();
+			out[SIZE - 1] = m0[0] * v0[0] + m0[1] * v0[1] + m0[2] * v0[2] + m0[3];
 			return out;
 		}
 
-		static Matrix<T, SIZE> getPerspective(float fovRads, float aspect_ratio, float near_dist, float far_dist)
+		static Matrix<T, SIZE> getPerspective(float fovRads, float aspect, float zNear, float zFar)
 		{
 			Matrix<T, SIZE> out;
 			float half{ std::tanf(fovRads / static_cast<T>(2)) };
-			out(0, 0) = static_cast<T>(1) / (aspect_ratio * half);
-			out(1, 1) = static_cast<T>(1) / half;
-			out(2, 2) = far_dist / (near_dist - far_dist);
-			out(3, 2) = -(static_cast<T>(1)); //3, 2
-			out(2, 3) = -((static_cast<T>(2) * far_dist * near_dist) / (far_dist - near_dist)); // 2, 3
+
+#if MD_FORCE_DEPTH_ZERO_TO_ONE == MD_ENABLED
+			out(0, 0) = static_cast<T>(1) / (aspect * half);
+			out(1, 1) = static_cast<T>(1) / (half);
+			out(2, 2) = zFar / (zNear - zFar);
+			out(3, 2) = -static_cast<T>(1);
+			out(2, 3) = -(zFar * zNear) / (zFar - zNear);
 			out(3, 3) = static_cast<T>(0);
+#else
+			out(0, 0) = static_cast<T>(1) / (aspect * half);
+			out(1, 1) = static_cast<T>(1) / half;
+			out(2, 2) = zFar / (zNear - zFar);
+			out(3, 2) = -(static_cast<T>(1)); //3, 2
+			out(2, 3) = -((static_cast<T>(2) * zFar * zNear) / (zFar - zNear)); // 2, 3
+			out(3, 3) = static_cast<T>(0);
+#endif
 			return out;
 		}
 
@@ -625,7 +577,7 @@ namespace m3d
 			out(3, 3) = 1.0;
 			return out;
 		}
-		static Matrix<T, SIZE> getInverse(const Matrix<T, SIZE>& m)
+		static Matrix<T, 4> getInverse(const Matrix<T, 4>& m)
 		{
 			Matrix<T, SIZE> out(m);
 			out(0, 0) = m(0, 0);
@@ -663,9 +615,8 @@ namespace m3d
 			out(3, 3) = static_cast<T>(1);
 			return out;
 		}
-		static Matrix<T, SIZE> getLookAt(const Vector<T, 3>& eye, const Vector<T, 3>& center, const  Vector<T, 3>& up)
+		static Matrix<T, 4> getLookAt(const Vector<T, 3>& eye, const Vector<T, 3>& center, const  Vector<T, 3>& up)
 		{
-
 			Vector<T, 3> f(center - eye);
 			f.normalized();
 			Vector<T, 3> s;
@@ -675,6 +626,7 @@ namespace m3d
 			u = Vector<T, 3>::cross(s, f);
 
 			Matrix<T, SIZE> out;
+
 			out(0, 0) = s.x();
 			out(0, 1) = s.y();
 			out(0, 2) = s.z();
@@ -685,30 +637,38 @@ namespace m3d
 			out(2, 1) = -f.y();
 			out(2, 2) = -f.z();
 
-			out(0, 3) = -Vector<T, 3>::dot(s, eye);
-			out(1, 3) = -Vector<T, 3>::dot(u, eye);
-			out(2, 3) = Vector<T, 3>::dot(f, eye);
+			out[3][0] = -Vector<T, 3>::dot(s, eye);
+			out[3][1] = -Vector<T, 3>::dot(u, eye);
+			out[3][2] = Vector<T, 3>::dot(f, eye);
 
 			return out;
+
+			//How a column major look at matrix is laid out
+			//out[0][0] = s.x();
+			//out[1][0] = s.y();
+			//out[2][0] = s.z();
+
+			//out[0][1] = u.x();
+			//out[1][1] = u.y();
+			//out[2][1] = u.z();
+
+			//out[0][2] = -f.x();
+			//out[1][2] = -f.y();
+			//out[2][2] = -f.z();
+
+			//out[3][0] = -Vector<T, 3>::dot(s, eye);
+			//out[3][1] = -Vector<T, 3>::dot(u, eye);
+			//out[3][2] = Vector<T, 3>::dot(f, eye);
 		}
 
 		private:
-			
-			/*Vector<T, SIZE> operator[] (size_type index)
-			{
-				return mat[index];
-			}*/
-
 	};
 
 	/*
 	*
 	*
 	*
-	*
-	* NON MEMBER OPERATORS
-	*
-	*
+	* NON-MEMBER OPERATORS
 	*
 	*
 	*
@@ -770,9 +730,9 @@ namespace m3d
 	*
 	*
 	*/
-	typedef Matrix<float, 2> Mat2f;
-	typedef Matrix<float, 3> Mat3f;
-	typedef Matrix<float, 4> Mat4f;
+	typedef Matrix<float, 2> mat2f;
+	typedef Matrix<float, 3> mat3f;
+	typedef Matrix<float, 4> mat4f;
 
 	typedef Matrix<float, 4> TestMat4Row;
 	typedef Matrix<float, 4> TestMat4Col;

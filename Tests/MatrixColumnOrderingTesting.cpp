@@ -1,8 +1,12 @@
 #include <gtest/gtest.h>
+#include <string>
+#include <iostream>
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
+#define MD_FORCE_DEPTH_ZERO_TO_ONE
 #define MD_FORCE_COLUMN_MAJOR_ORDERING
 #include "../M3D.h"
 
@@ -21,20 +25,42 @@ namespace MatrixColumnOrder_Testing
 			{
 				index = (i * 4) + j;
 				float value = buff[index];
+				bool f = false;
 			}
 		}
 		for (std::size_t i = 0; i < 4; i++)
 		{
 			for (std::size_t j = 0; j < 4; j++)
 			{
-				float colv = colMat(i, j);
+				float colv = colMat[i][j];
 				float glmv = glmMat[i][j];
-				//if (!colMat(i, j) == glmMat[i][j]) return false;
+				if (colv != glmv)
+				{
+					return false;
+				}
 				float value = glmMat[i][j];
 				bool f = false;
 			}
 		}
 		return true;
+	}
+
+	std::string glmToString(glm::mat4& m)
+	{
+		std::stringstream stream;
+		for (int i = 0; i < 4; i++)
+		{
+			stream << "|| ";
+			for (std::size_t j = 0; j < 4; j++)
+			{
+				
+				stream << m[i][j];	
+				stream << " ";
+			}
+			stream << " ||";
+			stream << "\n";
+		}
+		return stream.str();
 	}
 	
 	TEST(MatrixColumnOrderTest, Test_Matrix_Indexing)
@@ -45,7 +71,7 @@ namespace MatrixColumnOrder_Testing
 		* indexing into the array.
 		*/
 		TestMat4Col emptyMat{};
-		TestMat4Col matRow1 = TestMat4Col::getTranslation({ 12.0f, 15.0f, 17.0f });
+		TestMat4Col matRow1 = TestMat4Col::getTranslation(emptyMat, vec3f(12.0f, 15.0f, 17.0f ));
 		glm::mat4 glmMat{1.0f};
 		glmMat = glm::translate(glmMat, glm::vec3(12.0f, 15.0f, 17.0f));
 		ASSERT_EQ(true, Mat4f_GlmMat_Equality(matRow1, glmMat));
@@ -64,6 +90,7 @@ namespace MatrixColumnOrder_Testing
 			{2.0f, 2.0f, 12.0f, 2.0f},
 			{2.0f, 2.0f, 2.0f, 12.0f}
 		};
+
 		TestMat4Col matRow1(twoDArray);
 		TestMat4Col matRow2(2.0f);
 		TestMat4Col additionMatRow;
@@ -171,23 +198,23 @@ namespace MatrixColumnOrder_Testing
 	TEST(MatrixColumnOrderTest, Test_Matrix_Translation)
 	{
 		float answerArray[4][4] = {
-			{1.0f, 0.0f, 0.0f, 1.0f},
-			{0.0f, 1.0f, 0.0f, -1.0f},
+			{1.0f, 0.0f, 0.0f, 0.0f},
+			{0.0f, 1.0f, 0.0f, 0.0f},
 			{0.0f, 0.0f, 1.0f, 0.0f},
-			{0.0f, 0.0f, 0.0f, 1.0f}
+			{1.0f, -1.0f, 1.0f, 1.0f}
 		};
 		TestMat4Col testMat1;
-		testMat1.getTranslated({ 1.0f, -1.0f, 0.0f });
+		testMat1.getTranslated(vec3f(1.0f, -1.0f, 1.0f ));
 		TestMat4Col answerMat(answerArray);
 		ASSERT_EQ(true, answerMat == testMat1) << answerMat.toString() << "\n\n" << testMat1.toString();
-		testMat1.getTranslated(TestVec4({ 1.0f, -1.0f, 0.0f, 1.0f }));
-		ASSERT_EQ(true, answerMat == testMat1) << answerMat.toString() << "\n\n" << testMat1.toString();
+		//testMat1.getTranslated(TestVec4({ 1.0f, -1.0f, 0.0f, 1.0f }));
+		//ASSERT_EQ(true, answerMat == testMat1) << answerMat.toString() << "\n\n" << testMat1.toString();
 
-
-		TestMat4Col testMat2 = TestMat4Col::getTranslation({ 1.0f, -1.0f, 0.0f });
-		ASSERT_EQ(true, answerMat == testMat2) << answerMat.toString() << "\n\n" << testMat1.toString();
-		testMat2 = TestMat4Col::getTranslation(TestVec4({ 1.0f, -1.0f, 0.0f, 1.0f }));
-		ASSERT_EQ(true, answerMat == testMat2) << answerMat.toString() << "\n\n" << testMat2.toString();
+		//TestMat4Col iMat{};
+		//TestMat4Col testMat2 = TestMat4Col::getTranslation(iMat, { 1.0f, -1.0f, 0.0f });
+		//ASSERT_EQ(true, answerMat == testMat2) << answerMat.toString() << "\n\n" << testMat1.toString();
+		//testMat2 = TestMat4Col::getTranslation(iMat, TestVec4({ 1.0f, -1.0f, 0.0f, 1.0f }));
+		//ASSERT_EQ(true, answerMat == testMat2) << answerMat.toString() << "\n\n" << testMat2.toString();
 	}
 
 	TEST(MatrixColumnOrderTest, Test_Matrix_RotationZ)
@@ -223,25 +250,22 @@ namespace MatrixColumnOrder_Testing
 		float fovHalf = std::tanf(fovRads / 2.0f);
 
 		float answerArray[4][4] = {
-			{1.0f / (aspectRatio * fovHalf), 0.0f, 0.0f, 0.0f},
-			{0.0f, 1.0f / fovHalf, 0.0f, 0.0f},
-			{0.0f, 0.0f, farDist / (nearDist - farDist), -(2.0f * farDist * nearDist) / (farDist - nearDist)},
-			{0.0f, 0.0f, -1.0f, 0.0f}
+			{1.60948, 0.0f, 0.0f, 0.0f},
+			{0.0f, 2.41421, 0.0f, 0.0f},
+			{0.0f, 0.0f, -1.002, -1},
+			{0.0f, 0.0f, -0.1001, 0.0f}
 		};
 
-		TestMat4Col testMat1;
-		testMat1.getPerspectived(fovRads, aspectRatio, nearDist, farDist);
+		TestMat4Col testMat1 = TestMat4Col::getPerspective(fovRads, aspectRatio, nearDist, farDist);
 		TestMat4Col answerMat(answerArray);
-		ASSERT_EQ(true, answerMat == testMat1) << answerMat.toString() << "\n\n" << testMat1.toString();
 
-		TestMat4Col testMat2 = TestMat4Col::getPerspective(fovRads, aspectRatio, nearDist, farDist);
-		ASSERT_EQ(true, answerMat == testMat2) << answerMat.toString() << "\n\n" << testMat2.toString();
+		ASSERT_EQ(true, testMat1 == answerMat);
 	}
 	TEST(MatrixColumnOrderTest, Test_Matrix_LookAt)
 	{
 
-		TestVec3 eye(0.0f, 0.0f, 0.0f);
-		TestVec3 center(0.0f, 1.0f, 1.0f);
+		TestVec3 eye(1.0f, 2.0f, 3.0f);
+		TestVec3 center(1.0f, 1.0f, 1.0f);
 		TestVec3 up(0.0f, 1.0f, 0.0f);
 		TestVec3 testF(center - eye);
 		testF.normalized();
@@ -254,22 +278,21 @@ namespace MatrixColumnOrder_Testing
 
 
 		float answerArray[4][4] = {
-			{testS.x(), testS.y(), testS.z(), -zeroThree},
+			{1.0f, testS.y(), testS.z(), -zeroThree},
 			{testU.x(), testU.y(), testU.z(), -oneThree},
 			{-testF.x(), -testF.y(), -testF.z(), twoThree},
 			{0.0f, 0.0f, 0.0f, 1.0f}
 		};
 
-		//float answerArray[4][4] = {
-		//	{testS.x(), testU.x(), -testF.x(), 0.0f},
-		//	{testS.y(), testU.y(), -testF.y(), 0.0f},
-		//	{testS.z(), testU.z(), -testF.z(), 0.0f},
-		//	{-zeroThree, -oneThree, twoThree, 1.0f}
-		//};
+
+		glm::mat4 lookat = glm::lookAt(glm::vec3(1.0f, 2.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		TestMat4Col testMat1 = TestMat4Col::getLookAt(eye, center, up);
 		TestMat4Col answerMat(answerArray);
-		ASSERT_EQ(true, answerMat == testMat1) << answerMat.toString() << "\n\n" << testMat1.toString();
+
+		ASSERT_EQ(true, Mat4f_GlmMat_Equality(testMat1, lookat)) << glmToString(lookat) << "\n\n" << testMat1.toString();
+
+		//ASSERT_EQ(true, answerMat == testMat1) << answerMat.toString() << "\n\n" << testMat1.toString();
 	}
 
 }

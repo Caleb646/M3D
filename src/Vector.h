@@ -126,12 +126,26 @@ namespace m3d
 
 		Vector(std::initializer_list<T> init_list)
 		{
-			MD_ASSERT(SIZE == init_list.size());
+			//MD_ASSERT(SIZE == init_list.size());
 			size_type c{ 0 };
 
-			for (auto i : init_list)
+			if (init_list.size() < SIZE)
 			{
-				v[c++] = static_cast<T>(i);
+				for (auto i : init_list)
+				{
+					v[c++] = static_cast<T>(i);
+				}
+				for (size_type i = c; i < SIZE; i++)
+				{
+					v[i] = static_cast<T>(0);
+				}
+			}
+			else
+			{
+				for (auto i : init_list)
+				{
+					v[c++] = static_cast<T>(i);
+				}
 			}
 		}
 		~Vector() {}
@@ -605,9 +619,9 @@ namespace m3d
 	*
 	*/
 
-	typedef Vector<float, 2> Vec2f;
-	typedef Vector<float, 3> Vec3f;
-	typedef Vector<float, 4> Vec4f;
+	typedef Vector<float, 2> vec2f;
+	typedef Vector<float, 3> vec3f;
+	typedef Vector<float, 4> vec4f;
 
 	typedef Vector<float, 2> TestVec2;
 	typedef Vector<float, 3> TestVec3;
