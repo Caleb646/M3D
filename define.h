@@ -3,21 +3,30 @@
 
 #define MD_ASSERT(cond) assert(cond)
 
-#define MD_ENABLED true
-#define MD_DISABLED false
+/* Possible Settings */
+// M3D_FORCE_COLUMN_MAJOR_ORDERING
+// M3D_FORCE_DEPTH_ZERO_TO_ONE
 
-#ifdef MD_FORCE_COLUMN_MAJOR_ORDERING
-#	undef MD_FORCE_COLUMN_MAJOR_ORDERING
-#	define MD_FORCE_COLUMN_MAJOR_ORDERING MD_ENABLED
-#	pragma message("[M3D] Column Major Ordering Forced")
+
+namespace m3d
+{
+	namespace md_config
+	{
+		constexpr static bool ENABLED = true;
+		constexpr static bool DISABLED = false;
+
+#ifdef M3D_FORCE_COLUMN_MAJOR_ORDERING
+		constexpr static bool FORCE_COL_ORDERING = ENABLED;
+#		pragma message("[M3D] Column Major Ordering Forced")
 #else
-#	define MD_FORCE_COLUMN_MAJOR_ORDERING MD_DISABLED
+		constexpr static bool FORCE_COL_ORDERING = DISABLED;
 #endif
 
-#ifdef MD_FORCE_DEPTH_ZERO_TO_ONE
-#	undef MD_FORCE_DEPTH_ZERO_TO_ONE
-#	define MD_FORCE_DEPTH_ZERO_TO_ONE MD_ENABLED
-#	pragma message("[M3D] Depth Forced Between 0 - 1")
+#ifdef M3D_FORCE_DEPTH_ZERO_TO_ONE
+		constexpr static bool FORCE_DEPTH_ZERO_TO_ONE = ENABLED;
+#		pragma message("[M3D] Depth Forced Between 0 - 1")
 #else
-#	define MD_FORCE_DEPTH_ZERO_TO_ONE MD_DISABLED
+		constexpr static bool FORCE_DEPTH_ZERO_TO_ONE = DISABLED;
 #endif
+	}
+}

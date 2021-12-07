@@ -514,11 +514,24 @@ namespace m3d
 
 		static Vector<T, 3> cross(const Vector<T, 3>& v1, const Vector<T, 3>& v2)
 		{
-			Vector<T, 3> out;
-			out[0] = (v1[1] * v2[2]) - (v1[2] * v2[1]);
-			out[1] = (v1[2] * v2[0]) - (v1[0] * v2[2]);
-			out[2] = (v1[0] * v2[1]) - (v1[1] * v2[0]);
+			Vector<T, 3> out
+			(
+				(v1.y() * v2.z()) - (v1.z() * v2.y()),
+				(v1.z() * v2.x()) - (v1.x() * v2.z()),
+				(v1.x() * v2.y()) - (v1.y() * v2.x())
+			);
 			return out;
+		}
+
+
+		friend T dot(const Vector<T, SIZE>& v1, const Vector<T, SIZE>& v2)
+		{
+			float sum = static_cast<T>(0);
+			for (int i = 0; i < SIZE; i++)
+			{
+				sum = sum + (v1[i] * v2[i]);
+			}
+			return sum;
 		}
 	};
 

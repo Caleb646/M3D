@@ -116,21 +116,21 @@ namespace m3d
 		value_type& operator() (size_type row, size_type col)
 		{
 			MD_ASSERT(row < SIZE && col < SIZE);
-#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLED
+//#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLED
 			return operator[](col)[row];
-#else
+//#else
 			return operator[](row)[col];
-#endif
+//#endif
 		}
 
 		const value_type& operator ()(size_type row, size_type col) const
 		{
 			MD_ASSERT(row < SIZE && col < SIZE);
-#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLED
+//#if MD_FORCE_COLUMN_MAJOR_ORDERING == MD_ENABLED
 			return operator[](col)[row];
-#else
+//#else
 			return operator[](row)[col];
-#endif
+//#endif
 		}
 
 		vector_type& operator[] (size_type index)
@@ -455,6 +455,91 @@ namespace m3d
 		*
 		*/
 
+
+		friend Matrix<T, 4> translate(Matrix<T, 4> m, Vector<T, 3> v)
+		{
+			Matrix<T, SIZE> out;
+			out[SIZE - 1] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+			return out;
+		}
+	
+		friend Matrix<T, 4> lookAt(Vector<T, 3> eye, Vector<T, 3> center, Vector<T, 3> up)
+		{
+			if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED)
+			{
+				return lookAt_RH_COL(eye, center, up);
+			}
+
+			else if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED)
+			{
+				return lookAt_RH_ROW(eye, center, up);
+			}
+
+			else
+			{
+				MD_ASSERT(false); //improper config
+			}
+		}
+
+		friend Matrix<T, 4> lookAt_RH_ROW(Vector<T, 3> eye, Vector<T, 3> center, Vector<T, 3> up)
+		{
+			Vector<T, 3> f(center - eye);
+			f.normalized();
+			Vector<T, 3> s;
+			s = Vector<T, 3>::cross(f, up);
+			s.normalized();
+			Vector<T, 3> u;
+			u = Vector<T, 3>::cross(s, f);
+
+			Matrix<T, SIZE> out;
+
+			out[0][0] = s.x();
+			out[0][1] = s.y();
+			out[0][2] = s.z();
+			out[1][0] = u.x();
+			out[1][1] = u.y();
+			out[1][2] = u.z();
+			out[2][0] = -f.x();
+			out[2][1] = -f.y();
+			out[2][2] = -f.z();
+			//translation is always in this position regardless of row column ordering
+			out[3][0] = -dot(s, eye);
+			out[3][1] = -dot(u, eye);
+			out[3][2] = dot(f, eye);
+
+			return out;
+		}
+
+		friend Matrix<T, 4> lookAt_RH_COL(Vector<T, 3> eye, Vector<T, 3> center, Vector<T, 3> up)
+		{
+			Vector<T, 3> f(center - eye);
+			f.normalized();
+			Vector<T, 3> s;
+			s = Vector<T, 3>::cross(f, up);
+			s.normalized();
+			Vector<T, 3> u;
+			u = Vector<T, 3>::cross(s, f);
+
+			Matrix<T, SIZE> out;
+
+			out[0][0] = s.x();
+			out[1][0] = s.y();
+			out[2][0] = s.z();
+			out[0][1] = u.x();
+			out[1][1] = u.y();
+			out[2][1] = u.z();
+			out[0][2] = -f.x();
+			out[1][2] = -f.y();
+			out[2][2] = -f.z();
+			//translation is always in this position regardless of row column ordering
+			out[3][0] = -dot(s, eye);
+			out[3][1] = -dot(u, eye);
+			out[3][2] = dot(f, eye);
+
+			return out;
+		}
+
+
 		static Vector<T, SIZE> multVector(Matrix<T, SIZE> m0, Vector<T, SIZE> v0)
 		{
 			Vector<T, SIZE> out;
@@ -499,21 +584,21 @@ namespace m3d
 			Matrix<T, SIZE> out;
 			float half{ std::tanf(fovRads / static_cast<T>(2)) };
 
-#if MD_FORCE_DEPTH_ZERO_TO_ONE == MD_ENABLED
+//#if MD_FORCE_DEPTH_ZERO_TO_ONE == MD_ENABLED
 			out(0, 0) = static_cast<T>(1) / (aspect * half);
 			out(1, 1) = static_cast<T>(1) / (half);
 			out(2, 2) = zFar / (zNear - zFar);
 			out(3, 2) = -static_cast<T>(1);
 			out(2, 3) = -(zFar * zNear) / (zFar - zNear);
 			out(3, 3) = static_cast<T>(0);
-#else
+//#else
 			out(0, 0) = static_cast<T>(1) / (aspect * half);
 			out(1, 1) = static_cast<T>(1) / half;
 			out(2, 2) = zFar / (zNear - zFar);
 			out(3, 2) = -(static_cast<T>(1)); //3, 2
 			out(2, 3) = -((static_cast<T>(2) * zFar * zNear) / (zFar - zNear)); // 2, 3
 			out(3, 3) = static_cast<T>(0);
-#endif
+//#endif
 			return out;
 		}
 
@@ -628,6 +713,27 @@ namespace m3d
 
 			Matrix<T, SIZE> out;
 
+
+
+			//vec<3, T, Q> const f(normalize(center - eye));
+			//vec<3, T, Q> const s(normalize(cross(f, up)));
+			//vec<3, T, Q> const u(cross(s, f));
+
+			//mat<4, 4, T, Q> Result(1);
+			//Result[0][0] = s.x;
+			//Result[1][0] = s.y;
+			//Result[2][0] = s.z;
+			//Result[0][1] = u.x;
+			//Result[1][1] = u.y;
+			//Result[2][1] = u.z;
+			//Result[0][2] = -f.x;
+			//Result[1][2] = -f.y;
+			//Result[2][2] = -f.z;
+			//Result[3][0] = -dot(s, eye);
+			//Result[3][1] = -dot(u, eye);
+			//Result[3][2] = dot(f, eye);
+			//return Result;
+
 			out(0, 0) = s.x();
 			out(0, 1) = s.y();
 			out(0, 2) = s.z();
@@ -664,6 +770,99 @@ namespace m3d
 
 		private:
 	};
+
+
+
+	/*
+	* 
+	* 
+	* FRIEND FUNCTIONS
+	* 
+	* 
+	*/
+	template<typename T>
+	Matrix<T, 4> translate(Matrix<T, 4> m, Vector<T, 3> v)
+	{
+		Matrix<T, SIZE> out;
+		out[SIZE - 1] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+		return out;
+	}
+
+	template<typename T>
+	Matrix<T, 4> lookAt(Vector<T, 3> eye, Vector<T, 3> center, Vector<T, 3> up)
+	{
+		if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED)
+		{
+			return lookAt_RH_COL(eye, center, up);
+		}
+
+		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED)
+		{
+			return lookAt_RH_ROW(eye, center, up);
+		}
+
+		else constexpr
+		{
+			MD_ASSERT(false); //improper config
+		}
+	}
+
+	template<typename T>
+	Matrix<T, 4> lookAt_RH_ROW(Vector<T, 3> eye, Vector<T, 3> center, Vector<T, 3> up)
+	{
+		Vector<T, 3> f(center - eye);
+		f.normalized();
+		Vector<T, 3> s;
+		s = Vector<T, 3>::cross(f, up);
+		s.normalized();
+		Vector<T, 3> u;
+		u = Vector<T, 3>::cross(s, f);
+
+		Matrix<T, SIZE> out;
+
+		out[0][0] = s.x();
+		out[0][1] = s.y();
+		out[0][2] = s.z();
+		out[1][0] = u.x();
+		out[1][1] = u.y();
+		out[1][2] = u.z();
+		out[2][0] = -f.x();
+		out[2][1] = -f.y();
+		out[2][2] = -f.z();
+		//translation is always in this position regardless of row column ordering
+		out[3] = Vector<T, 3>(-dot(s, eye), -dot(u, eye), dot(f, eye));
+
+		return out;
+	}
+
+	template<typename T>
+	Matrix<T, 4> lookAt_RH_COL(Vector<T, 3> eye, Vector<T, 3> center, Vector<T, 3> up)
+	{
+		Vector<T, 3> f(center - eye);
+		f.normalized();
+		Vector<T, 3> s;
+		s = Vector<T, 3>::cross(f, up);
+		s.normalized();
+		Vector<T, 3> u;
+		u = Vector<T, 3>::cross(s, f);
+
+		Matrix<T, SIZE> out;
+
+		out[0][0] = s.x();
+		out[1][0] = s.y();
+		out[2][0] = s.z();
+		out[0][1] = u.x();
+		out[1][1] = u.y();
+		out[2][1] = u.z();
+		out[0][2] = -f.x();
+		out[1][2] = -f.y();
+		out[2][2] = -f.z();
+		//translation is always in this position regardless of row column ordering
+		out[3] = Vector<T, 3>(-dot(s, eye), -dot(u, eye), dot(f, eye));
+
+		return out;
+	}
+
 
 	/*
 	*

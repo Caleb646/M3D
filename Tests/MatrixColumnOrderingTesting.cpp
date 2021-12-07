@@ -261,6 +261,7 @@ namespace MatrixColumnOrder_Testing
 
 		ASSERT_EQ(true, testMat1 == answerMat);
 	}
+
 	TEST(MatrixColumnOrderTest, Test_Matrix_LookAt)
 	{
 
@@ -285,12 +286,10 @@ namespace MatrixColumnOrder_Testing
 		};
 
 
-		glm::mat4 lookat = glm::lookAt(glm::vec3(1.0f, 2.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 gLookat = glm::lookAt(glm::vec3(1.0f, 2.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		mat4f mdLookat = lookAt(eye, center, up);
 
-		TestMat4Col testMat1 = TestMat4Col::getLookAt(eye, center, up);
-		TestMat4Col answerMat(answerArray);
-
-		ASSERT_EQ(true, Mat4f_GlmMat_Equality(testMat1, lookat)) << glmToString(lookat) << "\n\n" << testMat1.toString();
+		ASSERT_EQ(true, Mat4f_GlmMat_Equality(mdLookat, gLookat)) << glmToString(gLookat) << "\n\n" << mdLookat.toString();
 
 		//ASSERT_EQ(true, answerMat == testMat1) << answerMat.toString() << "\n\n" << testMat1.toString();
 	}
