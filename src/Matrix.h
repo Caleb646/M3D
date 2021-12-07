@@ -21,14 +21,13 @@ namespace m3d
 	class Matrix
 	{
 	public:	
-		//value_type mat[SIZE * SIZE] = { 0 };
-		//value_type mat[SIZE][SIZE] = { 0 };
-		Vector<T, SIZE> mat[SIZE]{};
-
 		using size_type = std::size_t;
 		using value_type = T;
 		using vector_type = Vector<value_type, SIZE>;
 		using mat_t = Matrix;
+		//value_type mat[SIZE * SIZE] = { 0 };
+		//value_type mat[SIZE][SIZE] = { 0 };
+		vector_type mat[SIZE]{};
 
 	public:
 		Matrix()
@@ -321,11 +320,13 @@ namespace m3d
 		//call one of these functions.
 		operator const value_type* () const
 		{
-			return *mat;
+			//return *mat;
+			return &mat[0][0];
 		}
 		operator value_type* ()
 		{
-			return *mat;
+			//return *mat;
+			return &mat[0][0];
 		}
 
 		/*
