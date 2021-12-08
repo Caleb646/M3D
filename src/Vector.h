@@ -24,13 +24,15 @@ namespace m3d
 	public:
 		using size_type = std::size_t;
 		using value_type = T;
+		
+	private:
 		value_type v[SIZE]{ 0 };
 
 	public:
 		//pass in int/float to fill vector
 		Vector()
 		{
-			for (int i = 0; i < SIZE; i++)
+			for (std::size_t i = 0; i < SIZE; i++)
 			{
 				v[i] = static_cast<T>(1);
 			}
@@ -38,9 +40,7 @@ namespace m3d
 
 		Vector(const Vector<T, SIZE>& v0)
 		{
-
-			MD_ASSERT(validate(*this, v0) == true);
-			for (int i = 0; i < SIZE; i++)
+			for (std::size_t i = 0; i < SIZE; i++)
 			{
 				v[i] = v0[i];
 			}
@@ -48,8 +48,11 @@ namespace m3d
 
 		Vector(T f)
 		{
-			for (int i = 0; i < SIZE; i++)
+			for (std::size_t i = 0; i < SIZE; i++)
+			{
 				v[i] = f;
+			}
+				
 		}
 
 		Vector(T x, T y, T z, T w)
@@ -76,7 +79,9 @@ namespace m3d
 		Vector(T arr[SIZE])
 		{
 			for (int i = 0; i < SIZE; i++)
+			{
 				v[i] = arr[i];
+			}	
 		}
 
 		Vector(const Vector<T, 2>& xy, T z, T w)
@@ -124,34 +129,10 @@ namespace m3d
 			v[3] = w;
 		}
 
-		Vector(std::initializer_list<T> init_list)
-		{
-			//MD_ASSERT(SIZE == init_list.size());
-			size_type c{ 0 };
-
-			if (init_list.size() < SIZE)
-			{
-				for (auto i : init_list)
-				{
-					v[c++] = static_cast<T>(i);
-				}
-				for (size_type i = c; i < SIZE; i++)
-				{
-					v[i] = static_cast<T>(0);
-				}
-			}
-			else
-			{
-				for (auto i : init_list)
-				{
-					v[c++] = static_cast<T>(i);
-				}
-			}
-		}
 		~Vector() {}
 
 		//Base Util Methods
-		size_type getSize()
+		size_type size()
 		{
 			return SIZE;
 		}
@@ -231,7 +212,6 @@ namespace m3d
 
 		inline Vector<T, SIZE> operator* (const Vector<T, SIZE>& v0)
 		{
-			MD_ASSERT(validate(*this, v0));
 			Vector<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -262,7 +242,6 @@ namespace m3d
 
 		inline Vector<T, SIZE>& operator+= (const Vector<T, SIZE>& v0)
 		{
-			MD_ASSERT(validate(*this, v0));
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				v[i] = v[i] + v0[i];
@@ -272,7 +251,6 @@ namespace m3d
 
 		inline Vector<T, SIZE>& operator-= (const Vector<T, SIZE>& v0)
 		{
-			MD_ASSERT(validate(*this, v0));
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				v[i] = v[i] - v0[i];
@@ -282,7 +260,6 @@ namespace m3d
 
 		inline Vector<T, SIZE>& operator*= (const Vector<T, SIZE>& v0)
 		{
-			MD_ASSERT(validate(*this, v0));
 			for (size_type i = 0; i < SIZE; i++)
 			{
 				v[i] = v[i] * v0[i];
@@ -311,7 +288,10 @@ namespace m3d
 		inline Vector<T, SIZE>& operator= (const Vector<T, SIZE>& v0)
 		{
 			for (size_type i = 0; i < SIZE; i++)
+			{
 				v[i] = v0[i];
+			}
+				
 			return *this;
 		}
 
@@ -325,10 +305,10 @@ namespace m3d
 		{
 			Vector<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
-				for (size_type j = 0; j < SIZE; i++)
-				{
-					out[i] = -operator[](i);
-				}
+			{
+				out[i] = -operator[](i);
+			}
+				
 		}
 
 		//Vector Util Methods
@@ -381,15 +361,13 @@ namespace m3d
 		Vector<T, 2> xy() const
 		{
 			MD_ASSERT(SIZE >= 2);
-			Vector<T, 2> out({ v[0], v[1] });
-			return out;
+			return { v[0], v[1] };
 		}
 
 		Vector<T, 2> yz() const
 		{
 			MD_ASSERT(SIZE >= 2);
-			Vector<T, 2> out({ v[1], v[2] });
-			return out;
+			return { v[1], v[2] };
 		}
 
 		Vector<T, 2> zw() const
@@ -463,71 +441,56 @@ namespace m3d
 			return out;
 		}
 
-		bool validate(const Vector<T, SIZE>& v1, const Vector<T, SIZE>& v2)
+		/**
+		* 
+		* 
+		* UNIT TEST ONLY METHODS
+		* 
+		* 
+		*/
+		T* getUnderlyingArray()
 		{
-			return true;
+			if constexpr (md_config::UNIT_TESTING == md_config::ENABLED)
+			{
+				return v;
+			}
+			//else
+			//{
+			//	MD_ASSERT(false); //only used for unit tests
+			//}
 		}
 
-		bool validate(const Vector<T, SIZE>& v, int requiredSized)
+		/**
+		* 
+		* 
+		* 
+		* 
+		* FRIEND FUNCTIONS
+		* 
+		* 
+		* 
+		*/
+
+		friend float length(const Vector<T, SIZE>& v)
 		{
-			return true;
+			return std::sqrtf(dot(v));
 		}
 
-		float getLength()
+		friend Vector<T, SIZE> normalize(const Vector<T, SIZE>& v)
 		{
-			float l{ 0 };
-			for (int i = 0; i < SIZE; i++)
-				l = l + (v[i] * v[i]);
-			return std::sqrtf(l);
-		}
-
-		Vector<T, SIZE> normalize()
-		{
-			float l{ getLength() };
+			float l{ length(v) };
 			Vector<T, SIZE> out;
-			for (int i = 0; i < SIZE; i++)
+			for (std::size_t i = 0; i < SIZE; i++)
+			{
 				out[i] = v[i] / l;
+			}
+				
 			return out;
 		}
-
-		void normalized()
-		{
-			float l{ getLength() };
-			if (l == 0)
-				return;
-			for (int i = 0; i < SIZE; i++)
-			{
-				v[i] = v[i] / l;
-			}
-		}
-
-		//Vector Static Math Operations
-		static float dot(const Vector<T, SIZE>& v1, const Vector<T, SIZE>& v2)
-		{
-			float sum = static_cast<T>(0);
-			for (int i = 0; i < SIZE; i++)
-			{
-				sum = sum + (v1[i] * v2[i]);
-			}
-			return sum;
-		}
-
-		static Vector<T, 3> cross(const Vector<T, 3>& v1, const Vector<T, 3>& v2)
-		{
-			Vector<T, 3> out
-			(
-				(v1.y() * v2.z()) - (v1.z() * v2.y()),
-				(v1.z() * v2.x()) - (v1.x() * v2.z()),
-				(v1.x() * v2.y()) - (v1.y() * v2.x())
-			);
-			return out;
-		}
-
-
 		friend T dot(const Vector<T, SIZE>& v1, const Vector<T, SIZE>& v2)
 		{
-			float sum = static_cast<T>(0);
-			for (int i = 0; i < SIZE; i++)
+			T sum = static_cast<T>(0);
+			for (std::size_t i = 0; i < SIZE; i++)
 			{
 				sum = sum + (v1[i] * v2[i]);
 			}
@@ -536,25 +499,39 @@ namespace m3d
 	};
 
 	/*
-	*
-	*
+	* 
+	* 
+	* SPECIALIZED FUNCTIONS
+	* 
+	* 
+	*/
+	template<typename T>
+	Vector<T, 3>  cross(const Vector<T, 3>& v1, const Vector<T, 3>& v2)
+	{
+		Vector<T, 3> out{};
+		out[0] = (v1.y() * v2.z()) - (v1.z() * v2.y());
+		out[1] = (v1.z() * v2.x()) - (v1.x() * v2.z());
+		out[2] = (v1.x() * v2.y()) - (v1.y() * v2.x());
+		return out;
+	}
+
+
+	/*
 	*
 	*
 	* NON MEMBER OPERATORS
 	*
 	*
-	*
-	*
-	*
 	*/
-
 	template <typename T, std::size_t SIZE>
 	inline bool operator== (const Vector<T, SIZE>& lhs, const Vector<T, SIZE>& rhs)
 	{
 		for (std::size_t i = 0; i < SIZE; i++)
 		{
 			if (lhs[i] != rhs[i])
+			{
 				return false;
+			}	
 		}
 		return true;
 	}
@@ -631,13 +608,7 @@ namespace m3d
 	*
 	*
 	*/
-
 	typedef Vector<float, 2> vec2f;
 	typedef Vector<float, 3> vec3f;
 	typedef Vector<float, 4> vec4f;
-
-	typedef Vector<float, 2> TestVec2;
-	typedef Vector<float, 3> TestVec3;
-	typedef Vector<float, 4> TestVec4;
-
 }

@@ -166,7 +166,7 @@
     <ClInclude Include="define.h" />
     <ClInclude Include="M3D.h" />
     <ClInclude Include="src\Matrix.h" />
-    <ClInclude Include="src\Utils.h" />
+    <ClInclude Include="src\vMath.h" />
     <ClInclude Include="src\Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
