@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "define.h"
-#include "Fwd.h"
+#include "../Fwd.h"
 
 /*
 * 
@@ -435,45 +435,44 @@ namespace m3d
 			Vector<T, 3> out({ v[3], v[0], v[2] });
 			return out;
 		}
-
-		/**
-		* 
-		* 
-		* 
-		* 
-		* FRIEND FUNCTIONS
-		* 
-		* 
-		* 
-		*/
-
-		friend T length(const Vector<T, SIZE>& v)
-		{
-			return static_cast<T>(std::sqrtf(dot(v, v)));
-		}
-
-		friend Vector<T, SIZE> normalize(const Vector<T, SIZE>& v)
-		{
-			T l{ length(v) };
-			Vector<T, SIZE> out;
-			for (std::size_t i = 0; i < SIZE; i++)
-			{
-				out[i] = v[i] / l;
-			}
-				
-			return out;
-		}
-
-		friend T dot(const Vector<T, SIZE>& v1, const Vector<T, SIZE>& v2)
-		{
-			T sum = static_cast<T>(0);
-			for (std::size_t i = 0; i < SIZE; i++)
-			{
-				sum = sum + (v1[i] * v2[i]);
-			}
-			return sum;
-		}
 	};
+
+	/*
+	*
+	*
+	* NON-MEMBER FUNCTIONS
+	*
+	*
+	*/
+	template<typename T, std::size_t SIZE>
+	T length(const Vector<T, SIZE>& v)
+	{
+		return static_cast<T>(std::sqrtf(dot(v, v)));
+	}
+
+	template<typename T, std::size_t SIZE>
+	Vector<T, SIZE> normalize(const Vector<T, SIZE>& v)
+	{
+		T l{ length(v) };
+		Vector<T, SIZE> out;
+		for (std::size_t i = 0; i < SIZE; i++)
+		{
+			out[i] = v[i] / l;
+		}
+
+		return out;
+	}
+
+	template<typename T, std::size_t SIZE>
+	T dot(const Vector<T, SIZE>& v1, const Vector<T, SIZE>& v2)
+	{
+		T sum = static_cast<T>(0);
+		for (std::size_t i = 0; i < SIZE; i++)
+		{
+			sum = sum + (v1[i] * v2[i]);
+		}
+		return sum;
+	}
 
 	/*
 	*

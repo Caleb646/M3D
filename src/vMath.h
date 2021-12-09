@@ -12,7 +12,7 @@ namespace m3d
 	inline constexpr T pi_v = PI<T>::value;
 
 	template<typename T>
-	inline double toRadians(T degrees)
+	inline T toRadians(T degrees)
 	{
 		return (degrees * (pi_v<T> / static_cast<T>(180)));
 	}

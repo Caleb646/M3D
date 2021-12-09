@@ -259,38 +259,41 @@ namespace m3d
 				MD_ASSERT(row < SIZE&& col < SIZE);
 				return operator[](row)[col];
 			}
-
-		/*
-		*
-		* 
-		* FRIEND FUNCTIONS
-		* 
-		*
-		*/
-		friend Matrix<T, SIZE> transpose(const Matrix<T, SIZE>& m0)
-		{
-			//TODO THIS DOES NOT WORK
-			Matrix<T, SIZE> out;
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					out(i, j) = m0(j, i);
-				}
-			}
-			return out;
-		}
-
-		friend Matrix<T, SIZE> translate(const Matrix<T, SIZE>& m, const Vector<T, SIZE>& v)
-		{
-			Matrix<T, SIZE> out;
-			for (std::size_t i = 0; i < SIZE; i++)
-			{
-				out[SIZE - 1] += m[i] * v[i];
-			}
-			return out;
-		}
 	};
+
+
+	/**
+	* 
+	* 
+	* NON-MEMBER FUNCTIONS
+	* 
+	* 
+	*/
+	template<typename T, std::size_t SIZE>
+	Matrix<T, SIZE> transpose(const Matrix<T, SIZE>& m0)
+	{
+		//TODO THIS DOES NOT WORK
+		Matrix<T, SIZE> out;
+		for (size_type i = 0; i < SIZE; i++)
+		{
+			for (size_type j = 0; j < SIZE; j++)
+			{
+				out(i, j) = m0(j, i);
+			}
+		}
+		return out;
+	}
+
+	template<typename T, std::size_t SIZE>
+	Matrix<T, SIZE> translate(const Matrix<T, SIZE>& m, const Vector<T, SIZE>& v)
+	{
+		Matrix<T, SIZE> out;
+		for (std::size_t i = 0; i < SIZE; i++)
+		{
+			out[SIZE - 1] += m[i] * v[i];
+		}
+		return out;
+	}
 
 
 	/*
