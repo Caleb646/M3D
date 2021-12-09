@@ -41,7 +41,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MatrixColumnOrderingTesting.cpp" />
     <ClCompile Include="MatrixTesting.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="VectorTesting.cpp" />

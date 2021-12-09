@@ -16,7 +16,6 @@
 
 namespace m3d
 {
-
 	template <typename T, std::size_t SIZE>
 	class Matrix
 	{
@@ -25,7 +24,7 @@ namespace m3d
 		using value_type = T;
 		using vector_type = Vector<value_type, SIZE>;
 		using mat_t = Matrix;
-
+	private:
 		vector_type mat[SIZE]{};
 
 	public:
@@ -51,17 +50,6 @@ namespace m3d
 			}
 		}
 
-		Matrix(const Vector<T, SIZE>& in)
-		{
-			
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				vector_type v(static_cast<value_type>(0));
-				v[i] = in[i];
-				operator[](i) = v;
-			}
-		}
-
 		Matrix(const std::vector<std::vector<T>>& vec)
 		{
 			for (size_type i = 0; i < SIZE; i++)
@@ -71,7 +59,7 @@ namespace m3d
 			}
 		}
 
-		Matrix(const T& arr[SIZE][SIZE])
+		Matrix(T arr[SIZE][SIZE])
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
@@ -117,21 +105,13 @@ namespace m3d
 			return stream.str();
 		}
 
-		/**
-		 * @brief
+		/*
+		*
+		* 
+		* OPERATOR OVERLOADS
+		* 
+		*
 		*/
-		value_type& operator() (size_type row, size_type col)
-		{
-			MD_ASSERT(row < SIZE && col < SIZE);
-			return operator[](row)[col];
-		}
-
-		const value_type& operator ()(size_type row, size_type col) const
-		{
-			MD_ASSERT(row < SIZE && col < SIZE);
-			return operator[](row)[col];
-		}
-
 		vector_type& operator[] (size_type index)
 		{
 			return mat[index];
@@ -141,12 +121,6 @@ namespace m3d
 		{
 			return mat[index];
 		}
-
-		/*
-		*
-		* MATRIX OPERATOR OVERLOADS
-		*
-		*/
 
 		Matrix<T, SIZE>& operator= (const Matrix<T, SIZE>& m0)
 		{
@@ -159,67 +133,39 @@ namespace m3d
 
 		Matrix<T, SIZE> operator+ (const Matrix<T, SIZE>& m0)
 		{
-			Matrix<T, SIZE> out;
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				out[i] = operator[](i) + m0[i];
-			}
-			return out;
+			Matrix<T, SIZE> out(*this);
+			return out += m0;
 		}
 
 		Matrix<T, SIZE> operator- (const Matrix<T, SIZE>& m0)
 		{
-			Matrix<T, SIZE> out;
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				out[i] = operator[](i) - m0[i];
-			}
-			return out;
+			Matrix<T, SIZE> out(*this);
+			return out -= m0;
 		}
 
 		Matrix<T, SIZE> operator* (const Matrix<T, SIZE>& m0)
 		{
-			Matrix<T, SIZE> out(0.0f);
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				for (size_type j = 0; j < SIZE; j++)
-				{
-					for (size_type z = 0; z < SIZE; z++)
-					{
-						out[i][j] = out[i][j] + operator[](i)[j] * m0[j][z];
-					}
-				}
-			}
-			return out;
+			Matrix<T, SIZE> out(*this);
+			return out *= m0;
 		}
 
 		Matrix<T, SIZE> operator* (float scaler)
 		{
-			Matrix<T, SIZE> out;
-
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				out[i] = operator[](i) * scaler;
-			}
-			return out;
+			Matrix<T, SIZE> out(*this);
+			return out *= scaler;
 		}
 
 		Matrix<T, SIZE> operator/ (float scaler)
 		{
-			Matrix<T, SIZE> out;
-
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				out[i] = operator[](i) / scaler;
-			}
-			return out;
+			Matrix<T, SIZE> out(*this);
+			return out /= scaler;
 		}
 
 		Matrix<T, SIZE> operator+= (const Matrix<T, SIZE>& m0)
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				operator[](i) = operator[](i) + m0[i];
+				operator[](i) += m0[i];
 			}
 			return *this;
 		}
@@ -228,7 +174,7 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				operator[](i) = operator[](i) - m0[i];
+				operator[](i) -= m0[i];
 			}
 			return *this;
 		}
@@ -254,7 +200,7 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				operator[](i) = operator[](i) * scaler;
+				operator[](i) *= scaler;
 			}
 			return *this;
 		}
@@ -263,7 +209,7 @@ namespace m3d
 		{
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				operator[](i) = operator[](i) / scaler;
+				operator[](i) /= scaler;
 			}
 			return *this;
 		}
@@ -279,7 +225,7 @@ namespace m3d
 			Matrix<T, SIZE> out;
 			for (size_type i = 0; i < SIZE; i++)
 			{
-				operator()[i] = -operator()[i];
+				operator[](i) = -operator[](i);
 			}
 			return *this;
 		}
@@ -297,6 +243,22 @@ namespace m3d
 			//return *mat;
 			return &mat[0][0];
 		}
+
+		private:
+			/**
+			 * @brief
+			*/
+			value_type& operator() (size_type row, size_type col)
+			{
+				MD_ASSERT(row < SIZE&& col < SIZE);
+				return operator[](row)[col];
+			}
+
+			const value_type& operator ()(size_type row, size_type col) const
+			{
+				MD_ASSERT(row < SIZE&& col < SIZE);
+				return operator[](row)[col];
+			}
 
 		/*
 		*
@@ -339,7 +301,7 @@ namespace m3d
 	* 
 	*/
 	template<typename T>
-	Matrix<T, 4> perspective(float angle, float aspect, float zNear, float zFar)
+	Matrix<T, 4> perspective(T angle, T aspect, T zNear, T zFar)
 	{
 		if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::DISABLED)
 		{
@@ -348,7 +310,7 @@ namespace m3d
 
 		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::ENABLED)
 		{
-			return perspective_ROW_Depth_0_1(angle, aspect, zNear, zFar);
+			return perspective_ROW_Depth01(angle, aspect, zNear, zFar);
 		}
 
 		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::DISABLED)
@@ -358,7 +320,7 @@ namespace m3d
 
 		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::ENABLED)
 		{
-			return perspective_COL_Depth_0_1(angle, aspect, zNear, zFar);
+			return perspective_COL_Depth01(angle, aspect, zNear, zFar);
 		}
 		else
 		{
@@ -367,9 +329,9 @@ namespace m3d
 	}
 
 	template<typename T>
-	Matrix<T, 4> perspective_ROW(float angle, float aspect, float zNear, float zFar)
+	Matrix<T, 4> perspective_ROW(T angle, T aspect, T zNear, T zFar)
 	{
-		Matrix<T, SIZE> out;
+		Matrix<T, 4> out;
 		float half{ std::tanf(angle / static_cast<T>(2)) };
 		out[0][0] = static_cast<T>(1) / (aspect * half);
 		out[1][1] = static_cast<T>(1) / half;
@@ -381,9 +343,9 @@ namespace m3d
 	}
 
 	template<typename T>
-	Matrix<T, 4> perspective_ROW_Depth_0_1(float angle, float aspect, float zNear, float zFar)
+	Matrix<T, 4> perspective_ROW_Depth01(T angle, T aspect, T zNear, T zFar)
 	{
-		Matrix<T, SIZE> out;
+		Matrix<T, 4> out;
 		float half{ std::tanf(angle / static_cast<T>(2)) };
 		out[0][0] = static_cast<T>(1) / (aspect * half);
 		out[1][1] = static_cast<T>(1) / (half);
@@ -395,9 +357,9 @@ namespace m3d
 	}
 
 	template<typename T>
-	Matrix<T, 4> perspective_COL(float angle, float aspect, float zNear, float zFar)
+	Matrix<T, 4> perspective_COL(T angle, T aspect, T zNear, T zFar)
 	{
-		Matrix<T, SIZE> out;
+		Matrix<T, 4> out;
 		float half{ std::tanf(angle / static_cast<T>(2)) };
 		out[0][0] = static_cast<T>(1) / (aspect * half);
 		out[1][1] = static_cast<T>(1) / half;
@@ -409,9 +371,9 @@ namespace m3d
 	}
 
 	template<typename T>
-	Matrix<T, 4> perspective_COL_Depth_0_1(float angle, float aspect, float zNear, float zFar)
+	Matrix<T, 4> perspective_COL_Depth01(T angle, T aspect, T zNear, T zFar)
 	{
-		Matrix<T, SIZE> out;
+		Matrix<T, 4> out;
 		float half{ std::tanf(angle / static_cast<T>(2)) };
 		out[0][0] = static_cast<T>(1) / (aspect * half);
 		out[1][1] = static_cast<T>(1) / (half);
@@ -423,17 +385,36 @@ namespace m3d
 	}
 
 	template<typename T>
-	Matrix<T, 4> rotate(float angle, const Vector<T, 3>& axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
+	Matrix<T, 4> rotate(T angle, const Vector<T, 3>& axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
+	{
+		//TODO
+		if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED)
+		{
+			return rotate_ROW(angle, axis, m);
+		}
+		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED)
+		{
+			return rotate_COL(angle, axis, m);
+		}
+		else
+		{
+			MD_ASSERT(false); //improper config
+		}
+	}
+
+	template<typename T>
+	Matrix<T, 4> rotate_COL(T angle, const Vector<T, 3>& _axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
 	{
 		//TODO
 		T const a = angle;
 		T const c = std::cos(a);
 		T const s = std::sin(a);
 
-		axis = normalize(axis);
+		Vector<T, 3> axis = normalize(_axis);
 		Vector<T, 3> temp((static_cast<T>(1) - c) * axis);
 
 		Matrix<T, 4> rotation;
+		//
 		rotation[0][0] = c + temp[0] * axis[0];
 		rotation[0][1] = temp[0] * axis[1] + s * axis[2];
 		rotation[0][2] = temp[0] * axis[2] - s * axis[1];
@@ -455,10 +436,44 @@ namespace m3d
 	}
 
 	template<typename T>
-	Matrix<T, 4> translate(const Matrix<T, 4>& m, const Vector<T, 3>& v)
+	Matrix<T, 4> rotate_ROW(T angle, const Vector<T, 3>& _axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
 	{
-		Matrix<T, SIZE> out;
-		out[SIZE - 1] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+		//TODO
+		T const a = angle;
+		T const c = std::cos(a);
+		T const s = std::sin(a);
+
+		Vector<T, 3> axis = normalize(_axis);
+
+		Vector<T, 3> temp((static_cast<T>(1) - c) * axis);
+
+		Matrix<T, 4> rotation;
+		//
+		rotation[0][0] = c + temp[0] * axis[0];
+		rotation[1][0] = temp[0] * axis[1] + s * axis[2];
+		rotation[2][0] = temp[0] * axis[2] - s * axis[1];
+
+		rotation[0][1] = temp[1] * axis[0] - s * axis[2];
+		rotation[1][1] = c + temp[1] * axis[1];
+		rotation[2][1] = temp[1] * axis[2] + s * axis[0];
+
+		rotation[0][2] = temp[2] * axis[0] + s * axis[1];
+		rotation[1][2] = temp[2] * axis[1] - s * axis[0];
+		rotation[2][2] = c + temp[2] * axis[2];
+
+		Matrix<T, 4> out;
+		out[0] = m[0] * rotation[0][0] + m[1] * rotation[0][1] + m[2] * rotation[0][2];
+		out[1] = m[0] * rotation[1][0] + m[1] * rotation[1][1] + m[2] * rotation[1][2];
+		out[2] = m[0] * rotation[2][0] + m[1] * rotation[2][1] + m[2] * rotation[2][2];
+		out[3] = m[3];
+		return out;
+	}
+
+	template<typename T>
+	Matrix<T, 4> translate(const Matrix<T, 4>& m, const Vector<T, 3>& v) 
+	{
+		Matrix<T, 4> out;
+		out[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
 		return out;
 	}
 
@@ -484,15 +499,11 @@ namespace m3d
 	template<typename T>
 	Matrix<T, 4> lookAt_RH_ROW(const Vector<T, 3>& eye, const Vector<T, 3>& center, const Vector<T, 3>& up)
 	{
-		Vector<T, 3> f(center - eye);
-		f.normalized();
-		Vector<T, 3> s;
-		s = Vector<T, 3>::cross(f, up);
-		s.normalized();
-		Vector<T, 3> u;
-		u = Vector<T, 3>::cross(s, f);
+		Vector<T, 3> f(normalize(center - eye));
+		Vector<T, 3> s = normalize(cross(f, up));
+		Vector<T, 3> u = cross(s, f);
 
-		Matrix<T, SIZE> out;
+		Matrix<T, 4> out;
 		out[0][0] = s.x();
 		out[0][1] = s.y();
 		out[0][2] = s.z();
@@ -512,15 +523,11 @@ namespace m3d
 	template<typename T>
 	Matrix<T, 4> lookAt_RH_COL(const Vector<T, 3>& eye, const Vector<T, 3>& center, const Vector<T, 3>& up)
 	{
-		Vector<T, 3> f(center - eye);
-		f.normalized();
-		Vector<T, 3> s;
-		s = Vector<T, 3>::cross(f, up);
-		s.normalized();
-		Vector<T, 3> u;
-		u = Vector<T, 3>::cross(s, f);
+		Vector<T, 3> f(normalize(center - eye));
+		Vector<T, 3> s = normalize(cross(f, up));
+		Vector<T, 3> u = cross(s, f);
 
-		Matrix<T, SIZE> out;
+		Matrix<T, 4> out;
 		out[0][0] = s.x();
 		out[1][0] = s.y();
 		out[2][0] = s.z();
@@ -548,35 +555,14 @@ namespace m3d
 	*
 	*/
 
-	template <class T, int SIZE>
+	template <typename T, std::size_t SIZE>
 	Vector<T, SIZE> operator* (const Matrix<T, SIZE>& m0, const Vector<T, SIZE>& v0)
 	{
-		Vector<T, SIZE> out(0.0f);
-		for (std::size_t i = 0; i < SIZE; i++)
-		{
-			for (std::size_t j = 0; j < SIZE; j++)
-			{
-				out[i] = out[i] + m0[i][j] * v0[j];
-			}
-		}
-		return out;
+		Vector<T, SIZE> out(v0);
+		return out *= m0;
 	}
 
-	template <class T, int SIZE>
-	Vector<T, SIZE>  operator*= (const Matrix<T, SIZE>& m0, const Vector<T, SIZE>& v0)
-	{
-		Vector<T, SIZE> out(0.0f);
-		for (std::size_t i = 0; i < SIZE; i++)
-		{
-			for (std::size_t j = 0; j < SIZE; j++)
-			{
-				out[i] = out[i] + m0[i][j] * v0[j];
-			}
-		}
-		return out;
-	}
-
-	template <class T, int SIZE>
+	template <typename T, std::size_t SIZE>
 	inline bool operator== (const Matrix<T, SIZE>& lhs, const Matrix<T, SIZE>& rhs)
 	{
 		for (std::size_t i = 0; i < SIZE; i++)
@@ -593,7 +579,7 @@ namespace m3d
 		return true;
 	}
 
-	template <class T, int SIZE>
+	template <typename T, std::size_t SIZE>
 	inline bool operator!= (const Matrix<T, SIZE>& lhs, const Matrix<T, SIZE>& rhs)
 	{
 		return !(lhs == rhs);
@@ -610,8 +596,4 @@ namespace m3d
 	typedef Matrix<float, 2> mat2f;
 	typedef Matrix<float, 3> mat3f;
 	typedef Matrix<float, 4> mat4f;
-
-	typedef Matrix<float, 4> TestMat4Row;
-	typedef Matrix<float, 4> TestMat4Col;
-
 }

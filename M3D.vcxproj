@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="define.h" />
+    <ClInclude Include="Fwd.h" />
     <ClInclude Include="M3D.h" />
     <ClInclude Include="src\Matrix.h" />
     <ClInclude Include="src\vMath.h" />

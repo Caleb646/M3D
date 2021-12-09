@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iostream>
-
 #include "define.h"
+#include "Fwd.h"
 
 /*
 * 
@@ -24,7 +24,7 @@ namespace m3d
 	public:
 		using size_type = std::size_t;
 		using value_type = T;
-		
+
 	private:
 		value_type v[SIZE]{ 0 };
 
@@ -52,7 +52,14 @@ namespace m3d
 			{
 				v[i] = f;
 			}
-				
+		}
+
+		Vector(T arr[SIZE])
+		{
+			for (std::size_t i = 0; i < SIZE; i++)
+			{
+				v[i] = arr[i];
+			}
 		}
 
 		Vector(T x, T y, T z, T w)
@@ -74,14 +81,6 @@ namespace m3d
 		{
 			v[0] = x;
 			v[1] = y;
-		}
-
-		Vector(T arr[SIZE])
-		{
-			for (int i = 0; i < SIZE; i++)
-			{
-				v[i] = arr[i];
-			}	
 		}
 
 		Vector(const Vector<T, 2>& xy, T z, T w)
@@ -192,52 +191,32 @@ namespace m3d
 
 		inline Vector<T, SIZE> operator+ (const Vector<T, SIZE>& v0)
 		{
-			Vector<T, SIZE> out{};
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				out[i] = v[i] + v0[i];
-			}
-			return out;
+			Vector<T, SIZE> out(*this);
+			return out += v0;
 		}
 
 		inline Vector<T, SIZE> operator- (const Vector<T, SIZE>& v0)
 		{
-			Vector<T, SIZE> out;
-			for (int i = 0; i < SIZE; i++)
-			{
-				out[i] = v[i] - v0[i];
-			}
-			return out;
+			Vector<T, SIZE> out(*this);
+			return out -= v0;
 		}
 
 		inline Vector<T, SIZE> operator* (const Vector<T, SIZE>& v0)
 		{
-			Vector<T, SIZE> out;
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				out[i] = v[i] * v0[i];
-			}
-			return out;
+			Vector<T, SIZE> out(*this);
+			return out *= v0;
 		}
 
-		inline Vector<T, SIZE> operator* (float scale)
+		inline Vector<T, SIZE> operator* (float scaler)
 		{
-			Vector<T, SIZE> out;
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				out[i] = v[i] * scale;
-			}
-			return out;
+			Vector<T, SIZE> out(*this);
+			return out *= scaler;
 		}
 
-		inline Vector<T, SIZE> operator/ (float scale)
+		inline Vector<T, SIZE> operator/ (float scaler)
 		{
-			Vector<T, SIZE> out;
-			for (size_type i = 0; i < SIZE; i++)
-			{
-				out[i] = v[i] / scale;
-			}
-			return out;
+			Vector<T, SIZE> out(*this);
+			return out /= scaler;
 		}
 
 		inline Vector<T, SIZE>& operator+= (const Vector<T, SIZE>& v0)
@@ -255,6 +234,22 @@ namespace m3d
 			{
 				v[i] = v[i] - v0[i];
 			}
+			return *this;
+		}
+
+		//if row and col params are added to Matrix template
+		//template this function to accept them
+		inline Vector<T, SIZE>& operator*= (const Matrix<T, SIZE>& m0)
+		{
+			Vector<T, SIZE> out(static_cast<T>(0));
+			for (std::size_t i = 0; i < SIZE; i++)
+			{
+				for (std::size_t j = 0; j < SIZE; j++)
+				{
+					out[i] += operator[](j) * m0[i][j];
+				}
+			}
+			*this = out;
 			return *this;
 		}
 
@@ -444,25 +439,6 @@ namespace m3d
 		/**
 		* 
 		* 
-		* UNIT TEST ONLY METHODS
-		* 
-		* 
-		*/
-		T* getUnderlyingArray()
-		{
-			if constexpr (md_config::UNIT_TESTING == md_config::ENABLED)
-			{
-				return v;
-			}
-			//else
-			//{
-			//	MD_ASSERT(false); //only used for unit tests
-			//}
-		}
-
-		/**
-		* 
-		* 
 		* 
 		* 
 		* FRIEND FUNCTIONS
@@ -471,14 +447,14 @@ namespace m3d
 		* 
 		*/
 
-		friend float length(const Vector<T, SIZE>& v)
+		friend T length(const Vector<T, SIZE>& v)
 		{
-			return std::sqrtf(dot(v));
+			return static_cast<T>(std::sqrtf(dot(v, v)));
 		}
 
 		friend Vector<T, SIZE> normalize(const Vector<T, SIZE>& v)
 		{
-			float l{ length(v) };
+			T l{ length(v) };
 			Vector<T, SIZE> out;
 			for (std::size_t i = 0; i < SIZE; i++)
 			{
@@ -487,6 +463,7 @@ namespace m3d
 				
 			return out;
 		}
+
 		friend T dot(const Vector<T, SIZE>& v1, const Vector<T, SIZE>& v2)
 		{
 			T sum = static_cast<T>(0);
@@ -499,11 +476,11 @@ namespace m3d
 	};
 
 	/*
-	* 
-	* 
+	*
+	*
 	* SPECIALIZED FUNCTIONS
-	* 
-	* 
+	*
+	*
 	*/
 	template<typename T>
 	Vector<T, 3>  cross(const Vector<T, 3>& v1, const Vector<T, 3>& v2)

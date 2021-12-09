@@ -2,11 +2,19 @@
 
 namespace m3d
 {
-	constexpr double M_PI = 3.14159265358979323846264338327950288;
-
-	inline double toRadians(double degrees)
+	template<typename T>
+	struct PI
 	{
-		return (degrees * (M_PI / 180.0f));
+		constexpr static T value = static_cast<T>(3.14159265358979323846264338327950288);
+	};
+	
+	template<typename T>
+	inline constexpr T pi_v = PI<T>::value;
+
+	template<typename T>
+	inline double toRadians(T degrees)
+	{
+		return (degrees * (pi_v<T> / static_cast<T>(180)));
 	}
 }
 
