@@ -274,9 +274,9 @@ namespace m3d
 	{
 		//TODO THIS DOES NOT WORK
 		Matrix<T, SIZE> out;
-		for (size_type i = 0; i < SIZE; i++)
+		for (std::size_t i = 0; i < SIZE; i++)
 		{
-			for (size_type j = 0; j < SIZE; j++)
+			for (std::size_t j = 0; j < SIZE; j++)
 			{
 				out(i, j) = m0(j, i);
 			}
@@ -303,34 +303,6 @@ namespace m3d
 	* 
 	* 
 	*/
-	template<typename T>
-	Matrix<T, 4> perspective(T angle, T aspect, T zNear, T zFar)
-	{
-		if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::DISABLED)
-		{
-			return perspective_ROW(angle, aspect, zNear, zFar);
-		}
-
-		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::ENABLED)
-		{
-			return perspective_ROW_Depth01(angle, aspect, zNear, zFar);
-		}
-
-		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::DISABLED)
-		{
-			return perspective_COL(angle, aspect, zNear, zFar);
-		}
-
-		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::ENABLED)
-		{
-			return perspective_COL_Depth01(angle, aspect, zNear, zFar);
-		}
-		else
-		{
-			MD_ASSERT(false); //improper config;
-		}
-	}
-
 	template<typename T>
 	Matrix<T, 4> perspective_ROW(T angle, T aspect, T zNear, T zFar)
 	{
@@ -388,20 +360,30 @@ namespace m3d
 	}
 
 	template<typename T>
-	Matrix<T, 4> rotate(T angle, const Vector<T, 3>& axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
+	Matrix<T, 4> perspective(T angle, T aspect, T zNear, T zFar)
 	{
-		//TODO
-		if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED)
+		if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::DISABLED)
 		{
-			return rotate_ROW(angle, axis, m);
+			return perspective_ROW(angle, aspect, zNear, zFar);
 		}
-		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED)
+
+		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::ENABLED)
 		{
-			return rotate_COL(angle, axis, m);
+			return perspective_ROW_Depth01(angle, aspect, zNear, zFar);
+		}
+
+		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::DISABLED)
+		{
+			return perspective_COL(angle, aspect, zNear, zFar);
+		}
+
+		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED && md_config::FORCE_DEPTH_ZERO_TO_ONE == md_config::ENABLED)
+		{
+			return perspective_COL_Depth01(angle, aspect, zNear, zFar);
 		}
 		else
 		{
-			MD_ASSERT(false); //improper config
+			MD_ASSERT(false); //improper config;
 		}
 	}
 
@@ -473,30 +455,29 @@ namespace m3d
 	}
 
 	template<typename T>
+	Matrix<T, 4> rotate(T angle, const Vector<T, 3>& axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
+	{
+		//TODO
+		if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED)
+		{
+			return rotate_ROW(angle, axis, m);
+		}
+		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED)
+		{
+			return rotate_COL(angle, axis, m);
+		}
+		else
+		{
+			MD_ASSERT(false); //improper config
+		}
+	}
+
+	template<typename T>
 	Matrix<T, 4> translate(const Matrix<T, 4>& m, const Vector<T, 3>& v) 
 	{
 		Matrix<T, 4> out;
 		out[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
 		return out;
-	}
-
-	template<typename T>
-	Matrix<T, 4> lookAt(const Vector<T, 3>& eye, const Vector<T, 3>& center, const Vector<T, 3>& up)
-	{
-		if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED)
-		{
-			return lookAt_RH_COL(eye, center, up);
-		}
-
-		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED)
-		{
-			return lookAt_RH_ROW(eye, center, up);
-		}
-
-		else constexpr
-		{
-			MD_ASSERT(false); //improper config
-		}
 	}
 
 	template<typename T>
@@ -547,6 +528,24 @@ namespace m3d
 		return out;
 	}
 
+	template<typename T>
+	Matrix<T, 4> lookAt(const Vector<T, 3>& eye, const Vector<T, 3>& center, const Vector<T, 3>& up)
+	{
+		if constexpr (md_config::FORCE_COL_ORDERING == md_config::ENABLED)
+		{
+			return lookAt_RH_COL(eye, center, up);
+		}
+
+		else if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED)
+		{
+			return lookAt_RH_ROW(eye, center, up);
+		}
+
+		else
+		{
+			MD_ASSERT(false); //improper config
+		}
+	}
 
 	/*
 	*
@@ -566,6 +565,12 @@ namespace m3d
 	}
 
 	template <typename T, std::size_t SIZE>
+	inline bool operator!= (const Matrix<T, SIZE>& lhs, const Matrix<T, SIZE>& rhs)
+	{
+		return !(lhs == rhs);
+	}
+
+	template <typename T, std::size_t SIZE>
 	inline bool operator== (const Matrix<T, SIZE>& lhs, const Matrix<T, SIZE>& rhs)
 	{
 		for (std::size_t i = 0; i < SIZE; i++)
@@ -580,12 +585,6 @@ namespace m3d
 		}
 
 		return true;
-	}
-
-	template <typename T, std::size_t SIZE>
-	inline bool operator!= (const Matrix<T, SIZE>& lhs, const Matrix<T, SIZE>& rhs)
-	{
-		return !(lhs == rhs);
 	}
 
 	/*
