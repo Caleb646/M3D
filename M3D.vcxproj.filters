@@ -29,6 +29,8 @@
     <None Include="UpdateSubMods.bat">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="README.md" />
+    <None Include="LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="M3D.h">

@@ -390,7 +390,7 @@ namespace m3d
 	template<typename T>
 	Matrix<T, 4> rotate_COL(T angle, const Vector<T, 3>& _axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
 	{
-		//TODO
+		//SRC: https://github.com/g-truc/glm/blob/6ad79aae3eb5bf809c30bf1168171e9e55857e45/glm/ext/matrix_transform.hpp#L80
 		T const a = angle;
 		T const c = std::cos(a);
 		T const s = std::sin(a);
@@ -423,7 +423,7 @@ namespace m3d
 	template<typename T>
 	Matrix<T, 4> rotate_ROW(T angle, const Vector<T, 3>& _axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
 	{
-		//TODO
+		//SRC: https://github.com/g-truc/glm/blob/6ad79aae3eb5bf809c30bf1168171e9e55857e45/glm/ext/matrix_transform.hpp#L80
 		T const a = angle;
 		T const c = std::cos(a);
 		T const s = std::sin(a);
@@ -457,7 +457,7 @@ namespace m3d
 	template<typename T>
 	Matrix<T, 4> rotate(T angle, const Vector<T, 3>& axis, const Matrix<T, 4>& m = Matrix<T, 4>(static_cast<T>(1)))
 	{
-		//TODO
+		
 		if constexpr (md_config::FORCE_COL_ORDERING == md_config::DISABLED)
 		{
 			return rotate_ROW(angle, axis, m);

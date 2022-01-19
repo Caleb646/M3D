@@ -160,6 +160,8 @@
     <None Include=".gitignore" />
     <None Include=".gitmodules" />
     <None Include="AddSubMods.bat" />
+    <None Include="LICENSE" />
+    <None Include="README.md" />
     <None Include="UpdateSubMods.bat" />
   </ItemGroup>
   <ItemGroup>
